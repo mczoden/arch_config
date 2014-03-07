@@ -75,9 +75,9 @@ bashrc_PS1()
     fi
 }
 
-bashrc_dircolor()
+bashrc_dircolors()
 {
-    eval `dircolor`
+    eval `dircolors`
 }
 
 syns()
@@ -124,4 +124,4 @@ pytags()
 bashrc_alias
 bashrc_export_environment_variable
 bashrc_PS1
-bashrc_dircolor
+bashrc_dircolors
