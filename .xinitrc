@@ -50,8 +50,8 @@ ERROR_CODE=255
 xinitrc_xsetroot()
 {
     while true; do
-        xsetroot -name "`date '+%H:%M'`"
-        sleep 1m
+        xsetroot -name "`date '+%a %d %b %T'`"
+        sleep 1
     done &
 }
 
@@ -59,8 +59,6 @@ xinitrc_xset()
 {
     # Font path could be set in xorg.conf.
     xset +fp /usr/share/fonts/wenquanyi/wqy-microhei
-    # xset +fp /usr/share/fonts/wenquanyi/wqy-zenhei
-    # xset +fp /usr/share/fonts/wenquanyi/
     xset +fp /usr/share/fonts/local
     xset fp rehash
 }
