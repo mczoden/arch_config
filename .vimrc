@@ -35,7 +35,6 @@ endfunction VimrcSyntax
 call VimrcSyntax()
 
 function VimrcBasicIndent()
-    filetype plugin indent on
     set backspace=indent,eol,start
     set smarttab
     set smartindent
@@ -62,11 +61,22 @@ function VimrcLookupFile()
 endfunction VimrcLookupFile
 
 function VimrcAutoCmd()
-    if has("autocmd")
-        au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-    endif
+    filetype plugin indent on
+
+    augroup vimrcEx
+        au!
+        autocmd FileType text setlocal textwidth=78
+        autocmd BufReadPost *
+                    \ if line("'\"") > 1 && line("'\"") <= line("$") |
+                    \   exe "normal! g`\"" |
+                    \ endif
+    augroup END
 endfunction VimrcAutoCmd
-call VimrcAutoCmd()
+if has('autocmd')
+    call VimrcAutoCmd()
+else
+    set autoindent
+endif
 
 function VimrcFileEncoding()
     set fencs=utf-8,GB18030,ucs-bom,default,latin1
@@ -85,12 +95,9 @@ function ColorGeneral()
     hi LineNr       ctermfg=Gray
 endfunction ColorGeneral
 
-function ColorDefault()
-    call ColorGeneral()
-endfunction ColorDefault
-
 function ColorMiromiro()
     colorscheme miromiro
+
     hi LineNr       ctermfg=8
     hi Normal       ctermbg=NONE
     hi NonText      ctermbg=NONE
@@ -106,28 +113,37 @@ function ColorMiromiro()
 
     hi Comment      cterm=italic    ctermfg=7
     hi ColorColumn  term=bold       ctermbg=8       guibg=8
+
+    call ColorGeneral()
 endfunction ColorMiromiro
 
 function ColorDesert256()
     colorscheme desert256
-    " set background=light
+
     hi Normal       ctermbg=NONE
     hi NonText      ctermbg=NONE
-    " call ColorGeneral()
+
+    call ColorGeneral()
 endfunction ColorDesert256
 
 function ColorLucius()
     let g:lucius_style = 'dark'
     colorscheme lucius
+
+    " hi Normal       ctermbg=NONE
+    " hi NonText      ctermbg=NONE
 endfunction ColorLucius
 
-let g:Python3Syntax = 1
-
 function VimrcColor()
-    if ! has("gui_running") 
-        set t_Co=256 
-    endif 
-    call ColorLucius()
+    if ! has('gui_running')
+        set t_Co=256
+    endif
+
+    if has('unix')
+        call ColorDesert256()
+    else
+        call ColorLucius()
+    endif
 endfunction VimrcColor
 call VimrcColor()
 
@@ -137,6 +153,11 @@ function IndentKR()
 endfunction IndentKR
 
 function VimrcProgram()
+    if (strridx(@%, "tmux.conf") == 1)
+        set syntax=tmux
+        return
+    endif
+
     let file_ext_name = strpart(@%, strridx(@%, "."))
     if (file_ext_name == ".c" || file_ext_name == ".h" || file_ext_name == ".py")
         set textwidth=79
@@ -144,6 +165,7 @@ function VimrcProgram()
         call IndentKR()
     endif
 endfunction VimrcProgram
+call VimrcProgram()
 
 function Vimrc_MiniBufExplorer()
     let g:miniBufExplMapWindowNavVim = 1
