@@ -4,63 +4,37 @@
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
-#PS1='[\u@\h \W]\$ '
 
-alias ls='ls -G'
-alias ll='ls -ahlF'
-alias la='ls -A'
-alias l='ls -CF'
-alias grep='grep -n --color'
-alias rm='rm -iv'
-alias cp='cp -iv'
-alias mv='mv -iv'
-
-alias pwd='pwd -P'
-alias wlftp='lftp -u ftpuser,scFt1pp'
-alias tlftp='lftp -u ftpuser,kxcnd0l8f9cfqit3'
-alias smb_send="smbclient -U 'sdc/10555%Echeveria.1310' \
-    //ftmoutside.sdc.sercomm.com/Send \
-    -D 10555"
-alias smb_recv="smbclient -U 'sdc/10555%Echeveria.1310' \
-    //ftmoutside.sdc.sercomm.com/Receive \
-    -D inside_s_sdc_sercomm_com/10555"
-alias rd="rdesktop -K -f -u 10555 sercomm-280ebf4.SDC.SERCOMM.COM"
-alias vi="vim"
-
-alias ssh='TERM=screen ssh'
-alias pyhttp="python2.7 -m SimpleHTTPServer"
-
-#alias reboot="sudo umount /mnt/smb_recv/; reboot"
-#alias poweroff="sudo umount /mnt/smb_recv/; poweroff"
-
-export LS_COLORS="*.tar=01;31:*.tgz=01;31:*.gz=01;31:*.bz2=01;31:*.rar=01;31:*.zip=01;31:*.xz=01;31"
-export BROWSER="chromium"
-export HISTCONTROL=ignoreboth
-export EDITOR="vim"
-export GREP_COLOR=36
-#[[ -n "$TMUX" ]] && [[ -e /usr/share/terminfo/s/screen-256color ]] && export TERM="screen-256color"
-#[[ -n $DISPLAY ]] && export TERM="rxvt-unicode-256color"
-
-less_termcap()
+bashrc_alias()
 {
-    export LESS_TERMCAP_mb=$'\E[01;31m'
-    export LESS_TERMCAP_md=$'\E[01;31m'
-    export LESS_TERMCAP_me=$'\E[0m'
-    export LESS_TERMCAP_se=$'\E[0m'
-    export LESS_TERMCAP_so=$'\E[01;44;33m'
-    export LESS_TERMCAP_ue=$'\E[0m'
-    export LESS_TERMCAP_us=$'\E[01;32m'
+    alias ls='ls --color=auto'
+    alias ll='ls -lh'
+    alias la='ls -A'
+
+    alias mv='mv -iv'
+    alias rm='rm -iv'
+    alias cp='cp -iv'
+
+    alias grep='grep --color=auto'
+
+    alias pwd='pwd -P'
+
+    if [ $UID -ne 0 ]; then
+        alias poweroff='sudo systemctl poweroff'
+        alias reboot='sudo systemctl reboot'
+    fi
 }
 
-bash_prompt() {
-    #    case $TERM in
-    #     xterm*|rxvt*)
-    #         local TITLEBAR='\[\033]0;\u:${NEW_PWD}\007\]'
-    #          ;;
-#     *)
-    #         local TITLEBAR=""
-    #          ;;
-    #    esac
+bashrc_export_environment_variable()
+{
+    export BROWSER="chromium"
+    export HISTCONTROL=ignoreboth
+    export EDITOR="vim"
+    export GREP_COLOR=36
+}
+
+bashrc_PS1()
+{
     local NONE="\[\033[0m\]"    # unsets color to term's fg color
 
     # regular colors
@@ -93,27 +67,18 @@ bash_prompt() {
     local BGC="\[\033[46m\]"
     local BGW="\[\033[47m\]"
 
-    #    local UC=$W                 # user's color
-    #    [ $UID -eq "0" ] && UC=$R   # root's color
-
-    #    PS1="$TITLEBAR ${EMK}[${UC}\u${EMK}@${UC}\h ${EMB}\${NEW_PWD}${EMK}]${UC}\\$ ${NONE}"
-    # without colors: PS1="[\u@\h \${NEW_PWD}]\\$ "
-    # extra backslash in front of \$ to make bash colorize the prompt
-
     if [[ $UID == 0 ]]; then
         PS1="${W}┌─[${EMR}\u@\h${W}][${EMB}\w${W}]\n└─╼${NONE} "
     else
-        # PS1="${W}┌─[${G}\u@\h${W}][${EMB}\w${W}]\n└─╼${NONE} "
-        PS1="${K}┌─[${EMG}\u@\h${K}][${EMB}\w${K}]\n└─╼${NONE} "
+        PS1="${W}┌─[${G}\u@\h${W}][${EMB}\w${W}]\n└─╼${NONE} "
+        # PS1="${K}┌─[${EMG}\u@\h${K}][${EMB}\w${K}]\n└─╼${NONE} "
     fi
-    #┌
-    #└────■
-    #╼
 }
 
-bash_prompt
-#less_termcap
-#PS1="[\u@\h][\w]\n$ "
+bashrc_dircolor()
+{
+    eval `dircolor`
+}
 
 syns()
 {
@@ -155,3 +120,8 @@ pytags()
 {
     ctags --python-kinds=-i $@
 }
+
+bashrc_alias
+bashrc_export_environment_variable
+bashrc_PS1
+bashrc_dircolor
