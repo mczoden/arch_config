@@ -84,6 +84,7 @@ xinitrc_ibus()
 # one of elements in array xinitrc_xenv_name_tbl
 xinitrc_dwm_exec_hdl()
 {
+    xinitrc_xset
     xinitrc_xsetroot
     xinitrc_xresources
     xinitrc_ibus
