@@ -11,10 +11,10 @@ URxvt*inputMethod: ibus
 ! fonts
 Xft.dpi: 96
 Xft.rgba: rgb
-Xft.antialias: true
-Xft.hinting: true
-Xft.hinstyle: hintslight
-Xft.lcdfilter: lcddefault
+! Xft.antialias: true
+! Xft.hinting: true
+! Xft.hinstyle: hintslight
+! Xft.lcdfilter: lcddefault
 
 URxvt*font: xft:Monaco:size=10:hinting=true:hintstyle=hintslight:antialias=true:lcdfilter=lcddefault,xft:WenQuanYi Micro Hei:size=11:hinting=true:hintstyle=hintslight:antialias=true:lcdfilter=lcddefault
 URxvt*boldfont: xft:Monaco:size=10:hinting=true:hintstyle=hintslight:antialias=true:style=Bold:lcdfilter=lcddefault,xft:WenQuanYi Micro Hei:size=11:hinting=true:hintstyle=hintslight:antialias=true:style=Bold:lcdfilter=lcddefault
