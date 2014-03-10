@@ -124,4 +124,4 @@ pytags()
 bashrc_alias
 bashrc_export_environment_variable
 bashrc_PS1
-bashrc_dircolors
+# bashrc_dircolors
