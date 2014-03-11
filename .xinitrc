@@ -76,6 +76,32 @@ xinitrc_ibus()
     ibus-daemon -rxd
 }
 
+xinitrc_wallpaper()
+{
+    local wallpaper=''
+    local wallpaper_list=( \
+        '' \
+        'wallpaper-552587_yui.png' \
+        'wallpaper-553897_mio.png' \
+        'wallpaper-552586_ritsu.png' \
+        'wallpaper-540131_mugi.png' \
+        'wallpaper-545909_azusa.png' \
+        'wallpaper-564738_ui.png' \
+        'wallpaper-702897_nodoka.png' \
+        )
+
+    while true; do
+        wallpaper="/home/summer_sun/pic/kon/${wallpaper_list[`date +%u`]}"
+        feh --bg-fill $wallpaper &
+        sleep 6h
+    done &
+}
+
+xinitrc_xcompmgr()
+{
+    xcompmgr -c -n &
+}
+
 # X environment execution handler
 #
 # Name of haldler MUST follow format:
@@ -88,6 +114,8 @@ xinitrc_dwm_exec_hdl()
     xinitrc_xsetroot
     xinitrc_xresources
     xinitrc_ibus
+    xinitrc_wallpaper
+    xinitrc_xcompmgr
     exec dwm
 }
 
