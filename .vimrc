@@ -45,12 +45,12 @@ function VimrcTlist()
     set tags=tags;
     set autochdir
 
-    let Tlist_Ctags_Cmd = '/usr/bin/ctags'
-    let Tlist_Show_One_File = 1
-    let Tlist_Exit_OnlyWindow = 1
-    "let Tlist_Use_Right_Window = 1
-    let Tlist_GainFocus_On_ToggleOpen = 1
-    let Tlist_Close_On_Select = 1
+    let g:Tlist_Ctags_Cmd = '/usr/bin/ctags'
+    let g:Tlist_Show_One_File = 1
+    let g:Tlist_Exit_OnlyWindow = 1
+    "let g:Tlist_Use_Right_Window = 1
+    let g:Tlist_GainFocus_On_ToggleOpen = 1
+    let g:Tlist_Close_On_Select = 1
 
     map <F2> :Tlist<CR>
 endfunction VimrcTlist
@@ -148,8 +148,9 @@ endfunction VimrcColor
 call VimrcColor()
 
 function IndentKR()
-    set cinoptions=:0,(0
-    "set equalprg=indent\ --k-and-r-style\ --no-tabs\ --start-left-side-of-comments
+    " set cinoptions=:0,(0
+    set cinoptions=:0
+    " set equalprg=indent\ --k-and-r-style\ --no-tabs\ --start-left-side-of-comments
 endfunction IndentKR
 
 function VimrcProgram()
