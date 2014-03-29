@@ -139,10 +139,11 @@ function VimrcColor()
         set t_Co=256
     endif
 
-    if has('unix')
-        call ColorDesert256()
-    else
+    let os = substitute(system('uname'), "\n", "", "")
+    if os == "Darwin"
         call ColorLucius()
+    else
+        call ColorDesert256()
     endif
 endfunction VimrcColor
 call VimrcColor()
