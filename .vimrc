@@ -155,13 +155,8 @@ function IndentKR()
 endfunction IndentKR
 
 function VimrcProgram()
-    if (strridx(@%, "tmux.conf") == 1)
-        set syntax=tmux
-        return
-    endif
-
     let file_ext_name = strpart(@%, strridx(@%, "."))
-    if (file_ext_name == ".c" || file_ext_name == ".h" || file_ext_name == ".py")
+    if (file_ext_name == ".c" || file_ext_name == ".h")
         set textwidth=79
         set colorcolumn=79
         call IndentKR()
