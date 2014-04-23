@@ -121,6 +121,18 @@ pytags()
     ctags --python-kinds=-i $@
 }
 
+upgrade()
+{
+    case `uname -a` in
+        *ARCH*)
+            sudo pacman -Syu
+            ;;
+        *)
+            echo No upgrade method.
+            ;;
+    esac
+}
+
 bashrc_alias
 bashrc_export_environment_variable
 bashrc_PS1
