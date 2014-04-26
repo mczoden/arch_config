@@ -127,6 +127,9 @@ upgrade()
         *ARCH*)
             sudo pacman -Syu
             ;;
+        *Darwin*)
+            brew upgrade
+            ;;
         *)
             echo No upgrade method.
             ;;
