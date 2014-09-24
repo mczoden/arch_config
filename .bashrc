@@ -11,9 +11,9 @@ bashrc_alias()
     alias ll='ls -lh'
     alias la='ls -A'
 
-    alias mv='mv -iv'
-    alias rm='rm -iv'
-    alias cp='cp -iv'
+    alias mv='mv -i'
+    alias rm='rm -i'
+    alias cp='cp -i'
 
     alias grep='grep --color=auto'
 
