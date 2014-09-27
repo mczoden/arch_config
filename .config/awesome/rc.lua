@@ -15,6 +15,7 @@ local menubar = require("menubar")
 require("volume")
 require("power")
 require("net")
+require("mpd")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -100,11 +101,12 @@ end
 tags = {}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag({ "cli", "etc", "net", "doc" }, s, 
+    tags[s] = awful.tag({ "cli", "etc", "net", "doc", "ent" }, s, 
                         { layouts[LAYOUT_TILE_TOP],
                           layouts[LAYOUT_TILE_TOP],
                           layouts[LAYOUT_FLOATING],
-                          layouts[LAYOUT_MAX_FULLSCREEN] })
+                          layouts[LAYOUT_MAX_FULLSCREEN],
+                          layouts[LAYOUT_TILE_TOP] })
 end
 -- }}}
 
@@ -307,7 +309,12 @@ globalkeys = awful.util.table.join(
     -- Volume
     awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 5%+") end),
     awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 5%-") end),
-    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer sset Master toggle") end)
+    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer sset Master toggle") end),
+
+    awful.key({ }, "XF86AudioPlay", mpd_play_pause),
+    awful.key({ }, "XF86AudioStop", function() awful.util.spawn("mpc stop -q") end),
+    awful.key({ }, "XF86AudioPrev", function() awful.util.spawn("mpc prev -q") end),
+    awful.key({ }, "XF86AudioNext", function() awful.util.spawn("mpc next -q") end)
 )
 
 clientkeys = awful.util.table.join(
