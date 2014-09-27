@@ -10,7 +10,6 @@ end
 
 function mpd_play_pause()
   state = get_mpd_play_pause_state()
-  print(state)
   if state == "[playing]" then
     awful.util.spawn("mpc pause -q")
   else
