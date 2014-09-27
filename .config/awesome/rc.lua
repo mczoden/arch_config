@@ -12,6 +12,7 @@ local naughty = require("naughty")
 local menubar = require("menubar")
 -- Customized
 -- Volume
+local sugar = require("sugar")
 require("volume")
 require("power")
 require("net")
@@ -46,7 +47,7 @@ end
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init("~/.config/awesome/themes/zenburn/theme.lua")
 
-theme.font = "Sans 8"
+theme.font = "terminus 10"
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvt"
@@ -140,7 +141,7 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 
 -- {{{ Wibox
 -- Create a textclock widget
-mytextclock = awful.widget.textclock(" %a %b %d %H:%M ")
+mytextclock = awful.widget.textclock(sugar.span_str({ fmt = " %a %b %d %H:%M " }))
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -210,7 +211,7 @@ for s = 1, screen.count() do
     mytasklist[s] = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, mytasklist.buttons)
 
     -- Create the wibox
-    mywibox[s] = awful.wibox({ position = "top", screen = s })
+    mywibox[s] = awful.wibox({ position = "top", height = 18, screen = s })
 
     -- Widgets that are aligned to the left
     local left_layout = wibox.layout.fixed.horizontal()

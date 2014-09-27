@@ -1,6 +1,8 @@
 local wibox = require("wibox")
 local awful = require("awful")
 
+local sugar = require("sugar")
+
 volume_widget = wibox.widget.textbox()
 volume_widget:set_align("right")
 
@@ -16,9 +18,10 @@ function update_volume(widget)
   status = string.match(status, "%[(o[^%]]*)%]")
 
   if string.find(status, "on", 1, true) then
-    volume = "<span color='white'>Vol</span>" .. volume .. " "
+    volume = sugar.span_str({fmt = " Vol", color = "white"}) ..
+             sugar.span_str({fmt = volume .. " "})
   else
-    volume = "<span color='white'>Mute</span> "
+    volume = sugar.span_str({fmt = " Mute", color = "white"})
   end
   widget:set_markup(volume)
 end

@@ -2,6 +2,8 @@ local wibox = require("wibox")
 local awful = require("awful")
 local naughty = require("naughty")
 
+local sugar = require("sugar")
+
 power_widget = wibox.widget.textbox()
 power_widget:set_align("right")
 
@@ -18,7 +20,8 @@ function update_power(widget)
   status = trim(fd:read("*all"))
   fd:close()
 
-  widget:set_markup("<span color='white'>Bat</span> " .. capacity)
+  widget:set_markup(sugar.span_str({fmt = "Bat ", color = "white"}) ..
+                    sugar.span_str({fmt = capacity .. " "}))
 
   if capacity < 15 and status == "Discharging" then
     naughty.notify({ title = "Battery Warning",
