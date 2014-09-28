@@ -18,5 +18,3 @@ function mpd_play_pause()
     awful.util.spawn("mpc play -q")
   end
 end
-
-mpd_play_pause()

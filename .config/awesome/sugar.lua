@@ -1,4 +1,9 @@
+local wibox = require("wibox")
+
 local sugar = {}
+
+sugar.space = wibox.widget.textbox()
+sugar.space:set_text("  ")
 
 function sugar.span_str(args)
   str = "<span "

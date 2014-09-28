@@ -12,29 +12,44 @@ local function trim(s)
 end
 
 function update_power(widget)
-  fd = assert(io.open("/sys/class/power_supply/BAT1/capacity", "r"))
-  capacity = tonumber(fd:read("*all"))
-  fd:close()
+  cap = 0
+  adapter = false
+  text = sugar.span_str({fmt = "Bat", color = "white"})
 
-  fd = assert(io.open("/sys/class/power_supply/BAT1/status", "r"))
-  status = trim(fd:read("*all"))
-  fd:close()
+  f = io.popen("acpi -ab", "r")
+  acpi = f:read("*all")
+  f:close()
 
-  widget:set_markup(sugar.span_str({fmt = "Bat ", color = "white"}) ..
-                    sugar.span_str({fmt = capacity .. " "}))
+  if string.match(acpi, "on%-line") then
+    adapter = true
+  end
 
-  if capacity < 15 and status == "Discharging" then
+  cap = tonumber(string.match(acpi, "(%d?%d?%d)%%"))
+
+  if not cap then
+    text = text .. sugar.span_str({fmt = " ⌁⌁"})
+  else
+    if adapter then
+      text = text .. sugar.span_str({fmt = " " .. cap})
+    else
+      text = text .. sugar.span_str({fmt = "↯" .. cap})
+    end
+  end
+
+  widget:set_markup(text)
+
+  if not adapter and cap < 15 then
     naughty.notify({ title = "Battery Warning",
-                     text = "Battery low! " .. capacity .."%" .. " left",
+                     text = "Battery low! " .. cap .."%" .. " left",
                      fg = "#ffffff",
                      bg = "#C91C1C",
-                     timeout = 59,
+                     timeout = 5,
                    })
   end
 end
 
 update_power(power_widget)
 
-mytimer = timer({timeout = 60})
+mytimer = timer({timeout = 5})
 mytimer:connect_signal("timeout", function () update_power(power_widget) end)
 mytimer:start()
