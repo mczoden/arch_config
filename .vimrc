@@ -60,6 +60,11 @@ function VimrcLookupFile()
     let g:LookupFile_TagExpr = '"./filenametags"'
 endfunction VimrcLookupFile
 
+function IndentKR()
+    " set cinoptions=:0,(0
+    set cinoptions=:0
+endfunction IndentKR
+
 function VimrcAutoCmd()
     filetype plugin indent on
 
@@ -70,6 +75,9 @@ function VimrcAutoCmd()
                     \ if line("'\"") > 1 && line("'\"") <= line("$") |
                     \   exe "normal! g`\"" |
                     \ endif
+        autocmd BufRead,BufNewFile *
+                    \ if &filetype == "c" || &filetype == "cpp" |
+                    \   call IndentKR()
     augroup END
 endfunction VimrcAutoCmd
 if has('autocmd')
@@ -147,22 +155,6 @@ function VimrcColor()
     endif
 endfunction VimrcColor
 call VimrcColor()
-
-function IndentKR()
-    " set cinoptions=:0,(0
-    set cinoptions=:0
-    " set equalprg=indent\ --k-and-r-style\ --no-tabs\ --start-left-side-of-comments
-endfunction IndentKR
-
-function VimrcProgram()
-    let file_ext_name = strpart(@%, strridx(@%, "."))
-    if (file_ext_name == ".c" || file_ext_name == ".h")
-        set textwidth=79
-        set colorcolumn=79
-        call IndentKR()
-    endif
-endfunction VimrcProgram
-call VimrcProgram()
 
 function Vimrc_MiniBufExplorer()
     let g:miniBufExplMapWindowNavVim = 1
