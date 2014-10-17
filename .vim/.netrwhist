@@ -1,7 +1,0 @@
-let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =5
-let g:netrw_dirhist_1='/home/summer_sun/Projects/git/hems/.git'
-let g:netrw_dirhist_2='/home/summer_sun/Projects/git/hems'
-let g:netrw_dirhist_3='/home/summer_sun/Projects/git/hems/cpe_kpi_emu'
-let g:netrw_dirhist_4='/Users/mczoden/.vim'
-let g:netrw_dirhist_5='/Users/mczoden/.vim/colors'
