@@ -14,7 +14,7 @@ Xft.rgba: rgb
 URxvt*depth: 32
 
 URxvt*font: xft:Monaco:size=10:hinting=true:hintstyle=hintslight:antialias=true:lcdfilter=lcddefault,xft:WenQuanYi Micro Hei:size=11:hinting=true:hintstyle=hintslight:antialias=true:lcdfilter=lcddefault
-URxvt*boldfont: xft:Monaco:size=10:hinting=true:hintstyle=hintslight:antialias=true:style=Bold:lcdfilter=lcddefault,xft:WenQuanYi Micro Hei:size=11:hinting=true:hintstyle=hintslight:antialias=true:style=Bold:lcdfilter=lcddefault
+URxvt*boldFont: xft:Monaco:size=10:hinting=true:hintstyle=hintslight:antialias=true:style=Bold:lcdfilter=lcddefault,xft:WenQuanYi Micro Hei:size=11:hinting=true:hintstyle=hintslight:antialias=true:style=Bold:lcdfilter=lcddefault
 
 URxvt*colorIT:      #87af5f
 URxvt*colorBD:      #d7d7d7
