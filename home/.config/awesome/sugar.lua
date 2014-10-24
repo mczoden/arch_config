@@ -1,32 +1,38 @@
 local wibox = require("wibox")
 
+local DFL_FONT = "Dina"
+local DFL_FONT_SIZE = "10"
 local sugar = {}
 
 sugar.space = wibox.widget.textbox()
 sugar.space:set_text("  ")
 
-function sugar.span_str(args)
-  str = "<span "
+function sugar.span_str(str, style)
+  output = "<span "
 
-  if args.font then
-    str = str .. "font='" .. args.font
+  if not style then
+    style = {}
+  end
+
+  if style.font then
+    output = output.. "font='" .. style.font
   else
-    str = str .. "font='terminus"
+    output = output .. "font='" .. DFL_FONT
   end
 
-  if args.size then
-    str = str .. " " .. args.size .. "'"
+  if style.size then
+    output = output .. " " .. style.size .. "'"
   else
-    str = str .. " 10'"
+    output = output .. " " .. DFL_FONT_SIZE .. "'"
   end
 
-  if args.color then
-    str = str .. " color='" .. args.color .. "'"
+  if style.color then
+    output = output .. " color='" .. style.color .. "'"
   end
 
-  str = str .. ">" .. args.fmt .. "</span>"
+  output = output .. ">" .. str .. "</span>"
 
-  return str
+  return output
 end
 
 return sugar

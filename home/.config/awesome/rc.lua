@@ -16,7 +16,7 @@ local sugar = require("sugar")
 require("volume")
 require("power")
 require("net")
-require("mpd")
+-- require("mpd")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -47,10 +47,11 @@ end
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init("~/.config/awesome/themes/zenburn/theme.lua")
 
-theme.font = "terminus 10"
+theme.font = "Dina 10"
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvt"
+terminal_cmd = terminal .. " -e bash"
 editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -60,6 +61,7 @@ editor_cmd = terminal .. " -e " .. editor
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
 modkey = "Mod4"
+altkey = "Mod1"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 local layouts =
@@ -97,17 +99,23 @@ end
 -- }}}
 --]]
 
+local tag_name_lst = { "cli", "etc", "net", "doc", "ofc" }
+local tag_idx_lst = { }
+for k, v in pairs(tag_name_lst) do
+  tag_idx_lst[v] = k
+end
+
 -- {{{ Tags
 -- Define a tag table which hold all screen tags.
 tags = {}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag({ "cli", "etc", "net", "doc", "ent" }, s, 
+    tags[s] = awful.tag(tag_name_lst, s, 
                         { layouts[LAYOUT_TILE_TOP],
                           layouts[LAYOUT_TILE_TOP],
                           layouts[LAYOUT_FLOATING],
-                          layouts[LAYOUT_MAX_FULLSCREEN],
-                          layouts[LAYOUT_TILE_TOP] })
+                          layouts[LAYOUT_FLOATING],
+                          layouts[LAYOUT_FLOATING] })
 end
 -- }}}
 
@@ -120,13 +128,10 @@ myawesomemenu = {
    { "quit", awesome.quit }
 }
 
-mybrowsermenu = {
-    { "firefox", "firefox" }
-}
-
 mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
-                                    { "browser", mybrowsermenu },
-                                    { "terminal", terminal }
+                                    { "" },
+                                    { "reboot", "reboot" },
+                                    { "poweroff", "poweroff" }
                                   }
                         })
 
@@ -141,7 +146,7 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 
 -- {{{ Wibox
 -- Create a textclock widget
-mytextclock = awful.widget.textclock(sugar.span_str({ fmt = "%a %b %d %H:%M" }))
+mytextclock = awful.widget.textclock(sugar.span_str("%a %b %d %H:%M"))
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -211,7 +216,7 @@ for s = 1, screen.count() do
     mytasklist[s] = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, mytasklist.buttons)
 
     -- Create the wibox
-    mywibox[s] = awful.wibox({ position = "top", height = 18, screen = s })
+    mywibox[s] = awful.wibox({ position = "top", screen = s })
 
     -- Widgets that are aligned to the left
     local left_layout = wibox.layout.fixed.horizontal()
@@ -254,7 +259,8 @@ root.buttons(awful.util.table.join(
 globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
-    awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
+    -- awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
+    awful.key({ altkey,           }, "Tab", awful.tag.history.restore),
 
     awful.key({ modkey,           }, "j",
         function ()
@@ -283,7 +289,7 @@ globalkeys = awful.util.table.join(
         end),
 
     -- Standard program
-    awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
+    awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal_cmd) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
 
@@ -309,17 +315,18 @@ globalkeys = awful.util.table.join(
                   awful.util.getdir("cache") .. "/history_eval")
               end),
     -- Menubar
-    awful.key({ modkey }, "p", function() menubar.show() end),
+    -- awful.key({ modkey }, "p", function() menubar.show() end),
+    awful.key({ modkey }, "p", function() mypromptbox[mouse.screen]:run() end),
 
     -- Volume
-    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 5%+") end),
-    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 5%-") end),
-    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer sset Master toggle") end),
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 5%+ > /dev/null") end),
+    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 5%- > /dev/null") end),
+    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer sset Master toggle > /dev/null") end)
 
-    awful.key({ }, "XF86AudioPlay", mpd_play_pause),
-    awful.key({ }, "XF86AudioStop", function() awful.util.spawn("mpc stop -q") end),
-    awful.key({ }, "XF86AudioPrev", function() awful.util.spawn("mpc prev -q") end),
-    awful.key({ }, "XF86AudioNext", function() awful.util.spawn("mpc next -q") end)
+    -- awful.key({ }, "XF86AudioPlay", mpd_play_pause),
+    -- awful.key({ }, "XF86AudioStop", function() awful.util.spawn("mpc stop -q") end),
+    -- awful.key({ }, "XF86AudioPrev", function() awful.util.spawn("mpc prev -q") end),
+    -- awful.key({ }, "XF86AudioNext", function() awful.util.spawn("mpc next -q") end)
 )
 
 clientkeys = awful.util.table.join(
@@ -417,13 +424,20 @@ awful.rules.rules = {
     -- { rule = { class = "Firefox" },
     --   properties = { tag = tags[1][2] } },
     { rule = { class = "Firefox" },
-      properties = { tag = tags[1][3],
+      properties = { tag = tags[1][tag_idx_lst.net],
                      switchtotag = true } },
     { rule = { class = "Zathura" },
-      properties = { tag = tags[1][4],
-                     switchtotag = true } },
-    { rule = { class = "URxvt" },
-      properties = { size_hints_honor = false } },
+      properties = { tag = tags[1][tag_idx_lst.doc],
+                     switchtotag = true,
+                     maximized_vertical = true,
+                     maximized_horizontal = true } },
+     { rule = { class = "URxvt" },
+       properties = { size_hints_honor = false } },
+    { rule = { class = "libreoffice" },
+      properties = { tag = tags[1][tag_idx_lst.ofc],
+                     switchtotag = true,
+                     maximized_vertical = true,
+                     maximized_horizontal = true } },
 }
 -- }}}
 
