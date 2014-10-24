@@ -60,11 +60,6 @@ function VimrcLookupFile()
     let g:LookupFile_TagExpr = '"./filenametags"'
 endfunction VimrcLookupFile
 
-function IndentKR()
-    " set cinoptions=:0,(0
-    set cinoptions=:0
-endfunction IndentKR
-
 function VimrcAutoCmd()
     filetype plugin indent on
 
@@ -77,7 +72,10 @@ function VimrcAutoCmd()
                     \ endif
         autocmd BufRead,BufNewFile *
                     \ if &filetype == "c" || &filetype == "cpp" |
-                    \   call IndentKR() |
+                    \   set cinoptions=:0 |
+                    \ elseif &filetype == "lua" |
+                    \   set shiftwidth=2 |
+                    \   set tabstop=2 |
                     \ endif
     augroup END
 endfunction VimrcAutoCmd
