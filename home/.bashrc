@@ -15,7 +15,7 @@ bashrc_locale()
 
 bashrc_path()
 {
-    export PATH="$PATH:~/pro/utils"
+    export PATH="$PATH:~/pro/le-jour"
 }
 
 bashrc_alias()
