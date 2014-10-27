@@ -1,61 +1,25 @@
-URxvt*termName: rxvt-unicode-256color
-
-URxvt*scrollBar_right: false
-URxvt*scrollBar: false
-URxvt*borderLess: false
-
-URxvt*buffered: true
-URxvt*cursorBlink: true
-URxvt*inputMethod: ibus
-
-! fonts
 Xft.dpi: 96
 Xft.rgba: rgb
 Xft.lcdfilter: lcddefault
 Xft.antialias: true
 Xft.hinting: true
 Xft.hintstyle: hintslight
-!Xft.autohint: false
+Xft.autohint: false
+
+! use for thansparent
 URxvt*depth: 32
 
-!URxvt*font: xft:Dina:pixelsize=14,xft:WenQuanYi Bitmap Song:pixelsize=14
-!URxvt*boldFont: xft:Dina:style=Bold:pixelsize=14,xft:WenQuanYi Bitmap Song:pixelsize=14
-URxvt*font: xft:Monaco:size=10:hinting=true:hintstyle=hintslight:antialias=true:lcdfilter=lcddefault,\
-            xft:WenQuanYi Micro Hei:size=11:hinting=true:hintstyle=hintslight:antialias=true:lcdfilter=lcddefault
-URxvt*boldFont: xft:Monaco:size=10:hinting=true:hintstyle=hintslight:antialias=true:style=Bold:lcdfilter=lcddefault,
-            xft:WenQuanYi Micro Hei:size=11:hinting=true:hintstyle=hintslight:antialias=true:style=Bold:lcdfilter=lcddefault
+#include ".xconf/term/theme_arch_wiki"
 
-URxvt*colorIT:      #87af5f
-URxvt*colorBD:      #d7d7d7
-URxvt*colorUL:      #87afd7
+! font
+!URxvt*font: xft:Monaco:size=10,xft:WenQuanYi Micro Hei:antialias=true:hinting=true:hintstyle=hintslight
+URxvt*font: xft:Dina:pixelsize=14,xft:WenQuanYi Bitmap Song:pixelsize=14
+URxvt*boldFont: xft:Dina:style=Regular:pixelsize=14,xft:WenQuanYi Bitmap Song:style=Regular:pixelsize=14
 
-! ! tangoesque scheme
-URxvt*background: [95]#111111
-URxvt*foreground: #babdb6
-! ! Black (not tango) + DarkGrey
-URxvt*color0:  #000000
-URxvt*color8:  #555753
-! ! DarkRed + Red
-URxvt*color1:  #ff6565
-URxvt*color9:  #ff8d8d
-! ! DarkGreen + Green
-URxvt*color2:  #93d44f
-URxvt*color10: #c8e7a8
-! ! DarkYellow + Yellow
-URxvt*color3:  #eab93d
-URxvt*color11: #ffc123
-! ! DarkBlue + Blue
-URxvt*color4:  #204a87
-URxvt*color12: #3465a4
-! ! DarkMagenta + Magenta
-URxvt*color5:  #ce5c00
-URxvt*color13: #f57900
-! !DarkCyan + Cyan (both not tango)
-URxvt*color6:  #89b6e2
-URxvt*color14: #46a4ff
-! ! LightGrey + White
-URxvt*color7:  #cccccc
-URxvt*color15: #ffffff
+URxvt*scrollBar: false
+URxvt*termName: rxvt-unicode-256color
+URxvt*cursorBlink: true
+URxvt*inputMethod: ibus
 
+! perl extension
 URxvt.perl-ext-common: default,clipboard
-!URxvt.letterSpace: -4
