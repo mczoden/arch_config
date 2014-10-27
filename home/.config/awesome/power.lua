@@ -14,7 +14,7 @@ end
 function update_power(widget)
   cap = 0
   adapter = false
-  text = sugar.span_str({fmt = "Bat", color = "white"})
+  text = sugar.span_str("Bat", {color = "white"})
 
   f = io.popen("acpi -ab", "r")
   acpi = f:read("*all")
@@ -27,12 +27,12 @@ function update_power(widget)
   cap = tonumber(string.match(acpi, "(%d?%d?%d)%%"))
 
   if not cap then
-    text = text .. sugar.span_str({fmt = " ⌁⌁"})
+    text = text .. sugar.span_str(" ⌁⌁")
   else
     if adapter then
-      text = text .. sugar.span_str({fmt = " " .. cap})
+      text = text .. sugar.span_str(" " .. cap)
     else
-      text = text .. sugar.span_str({fmt = "↯" .. cap})
+      text = text .. sugar.span_str("↯" .. cap)
     end
   end
 

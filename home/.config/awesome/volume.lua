@@ -18,10 +18,10 @@ function update_volume(widget)
   status = string.match(status, "%[(o[^%]]*)%]")
 
   if string.find(status, "on", 1, true) then
-    volume = sugar.span_str({fmt = "Vol", color = "white"}) ..
-             sugar.span_str({fmt = volume})
+    volume = sugar.span_str("Vol", {color = "white"}) ..
+             sugar.span_str(volume)
   else
-    volume = sugar.span_str({fmt = "Mute", color = "white"})
+    volume = sugar.span_str("Mute", {color = "white"})
   end
   widget:set_markup(volume)
 end
