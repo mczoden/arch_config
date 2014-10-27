@@ -5,6 +5,19 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
+bashrc_locale()
+{
+    unset LANGUAGE
+    unset LC_CTYPE
+
+    export LANG=en_US.UTF-8
+}
+
+bashrc_path()
+{
+    export PATH="$PATH:~/pro/utils"
+}
+
 bashrc_alias()
 {
     alias ls='ls --color=auto'
@@ -80,62 +93,9 @@ bashrc_dircolors()
     eval `dircolors`
 }
 
-syns()
-{
-    synergys --config /etc/synergy.conf
-}
 
-pmount()
-{
-    if mount | grep -q $1; then
-        echo "Device has been mounted"
-        return
-    fi
-
-    local dev_name=`basename $1`
-
-    if [ -e /tmp/$dev_name ]; then
-        if [ ! -d /tmp/$dev_name ]; then
-            echo "/tmp/$dev_name is existed but not a directory"
-            return
-        fi
-    else
-        mkdir /tmp/$dev_name
-    fi
-
-    sudo mount --option utf8,uid=$UID $1 /tmp/$dev_name
-}
-
-pumount()
-{
-    if ! mount | grep -q $1; then
-        echo "Device hasn't been mounted"
-        return
-    fi
-
-    sudo umount $1
-}
-
-pytags()
-{
-    ctags --python-kinds=-i $@
-}
-
-upgrade()
-{
-    case `uname -a` in
-        *ARCH*)
-            sudo pacman -Syu
-            ;;
-        *Darwin*)
-            brew upgrade
-            ;;
-        *)
-            echo No upgrade method.
-            ;;
-    esac
-}
-
+bashrc_locale
+bashrc_path
 bashrc_alias
 bashrc_export_environment_variable
 bashrc_PS1
