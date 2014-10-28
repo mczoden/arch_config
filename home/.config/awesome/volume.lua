@@ -1,33 +1,51 @@
-local wibox = require("wibox")
-local awful = require("awful")
-
+local setmetatable = setmetatable
+local textbox = require("wibox.widget.textbox")
+local util = require("awful.util")
 local sugar = require("sugar")
 
-volume_widget = wibox.widget.textbox()
-volume_widget:set_align("right")
+local w = textbox()
+local volume = {mt = {}}
 
-function update_volume(widget)
-  fd = assert(io.popen("amixer sget Master"))
-  status = fd:read("*all")
-  fd:close()
+function volume.display_volume(widget)
+  local f = assert(io.popen("amixer sget Master"))
+  local raw_input = f:read("*all")
+  f:close()
 
-  -- local volume = tonumber(string.match(status, "(%d?%d?%d)%%")) / 100
-  volume = string.match(status, "(%d?%d?%d)%%")
-  volume = string.format("% 3d", volume)
+  local volume_str = string.match(raw_input, "(%d?%d?%d)%%") or "0"
+  volume_str = string.format("% 3d", volume_str)
 
-  status = string.match(status, "%[(o[^%]]*)%]")
-
-  if string.find(status, "on", 1, true) then
-    volume = sugar.span_str("Vol", {color = "white"}) ..
-             sugar.span_str(volume)
+  local output = ""
+  local state = string.match(raw_input, "%[(o[^%]]*)%]") or "off"
+  if string.find(state, "on", 1, true) then
+    output = sugar.span_str("Vol", {color = "white"}) ..
+             sugar.span_str(volume_str)
   else
-    volume = sugar.span_str("Mute", {color = "white"})
+    output = sugar.span_str("Mute", {color = "white"})
   end
-  widget:set_markup(volume)
+
+  widget:set_markup(output)
 end
 
-update_volume(volume_widget)
+function volume.new()
+	volume.display_volume(w)
 
-mytimer = timer({timeout = 0.5})
-mytimer:connect_signal("timeout", function () update_volume(volume_widget) end)
-mytimer:start()
+	return w
+end
+
+function volume.update(op)
+	if op == "up" then
+		util.spawn("amixer set Master 5%+ > /dev/null")
+	elseif op == "down" then
+		util.spawn("amixer set Master 5%- > /dev/null")
+	elseif op == "mute" then
+		util.spawn("amixer sset Master toggle > /dev/null")
+	end
+
+	volume.display_volume(w)
+end
+
+function volume.mt:__call(...)
+	return volume.new(...)
+end
+
+return setmetatable(volume, volume.mt)

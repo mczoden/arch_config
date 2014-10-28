@@ -13,7 +13,7 @@ local menubar = require("menubar")
 -- Customized
 -- Volume
 local sugar = require("sugar")
-require("volume")
+local volume = require("volume")
 require("power")
 require("net")
 -- require("mpd")
@@ -147,6 +147,9 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- {{{ Wibox
 -- Create a textclock widget
 mytextclock = awful.widget.textclock(sugar.span_str("%a %b %d %H:%M"))
+
+-- Create a volume widget
+volume_widget = volume()
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -319,9 +322,9 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey }, "p", function() mypromptbox[mouse.screen]:run() end),
 
     -- Volume
-    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 5%+ > /dev/null") end),
-    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 5%- > /dev/null") end),
-    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer sset Master toggle > /dev/null") end)
+    awful.key({ }, "XF86AudioRaiseVolume", function() volume.update("up") end),
+    awful.key({ }, "XF86AudioLowerVolume", function() volume.update("down") end),
+    awful.key({ }, "XF86AudioMute", function() volume.update("mute") end)
 
     -- awful.key({ }, "XF86AudioPlay", mpd_play_pause),
     -- awful.key({ }, "XF86AudioStop", function() awful.util.spawn("mpc stop -q") end),
