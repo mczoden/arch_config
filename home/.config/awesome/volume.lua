@@ -8,7 +8,7 @@ local is_mute = false
 local w = textbox()
 local volume = {mt = {}}
 
-function volume.get_state()
+local function get_state()
 	local raw_input = util.pread("amixer get Master")
 	vol = string.match(raw_input, "(%d?%d?%d)%%") or "0"
   vol = string.format("% 3d", vol)
@@ -17,7 +17,7 @@ function volume.get_state()
 	is_mute = string.find(state, "off", 1, true) and true or false
 end
 
-function volume.display(widget)
+local function display()
   local output = ""
   if is_mute then
     output = sugar.span_str("Mute", {color = "white"})
@@ -26,7 +26,7 @@ function volume.display(widget)
              sugar.span_str(vol)
   end
 
-  widget:set_markup(output)
+  w:set_markup(output)
 end
 
 function volume.adjust(op)
@@ -44,13 +44,13 @@ function volume.adjust(op)
 		util.spawn_with_shell("amixer set Master toggle > /dev/null")
 	end
 
-	volume.get_state()
-	volume.display(w)
+	get_state()
+	display()
 end
 
 function volume.new()
-	volume.get_state()
-	volume.display(w)
+	get_state()
+	display()
 
 	return w
 end
