@@ -4,13 +4,11 @@ local util = require("awful.util")
 local sugar = require("sugar")
 
 local w = textbox()
+local is_mute = false
 local volume = {mt = {}}
 
 function volume.display_volume(widget)
-  local f = assert(io.popen("amixer sget Master"))
-  local raw_input = f:read("*all")
-  f:close()
-
+	local raw_input = util.pread("amixer sget Master")
   local volume_str = string.match(raw_input, "(%d?%d?%d)%%") or "0"
   volume_str = string.format("% 3d", volume_str)
 
@@ -19,8 +17,10 @@ function volume.display_volume(widget)
   if string.find(state, "on", 1, true) then
     output = sugar.span_str("Vol", {color = "white"}) ..
              sugar.span_str(volume_str)
+		is_mute = false
   else
     output = sugar.span_str("Mute", {color = "white"})
+		is_mute = true
   end
 
   widget:set_markup(output)
@@ -34,11 +34,17 @@ end
 
 function volume.update(op)
 	if op == "up" then
-		util.spawn("amixer set Master 5%+ > /dev/null")
+		util.spawn_with_shell("amixer set Master 5%+ > /dev/null")
+		if is_mute then
+			util.spawn_with_shell("amixer set Master toggle > /dev/null")
+		end
 	elseif op == "down" then
-		util.spawn("amixer set Master 5%- > /dev/null")
+		util.spawn_with_shell("amixer set Master 5%- > /dev/null")
+		if is_mute then
+			util.spawn_with_shell("amixer set Master toggle > /dev/null")
+		end
 	elseif op == "mute" then
-		util.spawn("amixer sset Master toggle > /dev/null")
+		util.spawn_with_shell("amixer set Master toggle > /dev/null")
 	end
 
 	volume.display_volume(w)
