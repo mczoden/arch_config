@@ -35,7 +35,7 @@ function power.display(widget)
 end
 
 function power.notify()
-  if not has_adapter and tonumber(cap) < 100 then
+  if not has_adapter and tonumber(cap) < 15 then
     naughty.notify({title = nil,
                     text = "Battery low! " .. cap .."%" .. " left",
                     fg = "#ffffff",
