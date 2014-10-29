@@ -1,55 +1,68 @@
-local wibox = require("wibox")
-local awful = require("awful")
-local naughty = require("naughty")
-
+local setmetatable = setmetatable
 local sugar = require("sugar")
+local textbox = require("wibox.widget.textbox")
+local util = require("awful.util")
+local naughty = require("naughty")
+local capi = {timer = timer}
 
-power_widget = wibox.widget.textbox()
-power_widget:set_align("right")
+local has_battery = false
+local has_adapter = false
+local cap = ""
+local w = textbox()
+local power = {mt = {}}
 
-local function trim(s)
-  return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
+function power.get_state()
+	local raw_input = util.pread("acpi -ab")
+	has_battery = string.match(raw_input, "Battery") and true or false
+	has_adapter = string.match(raw_input, "on%-line") and true or false
+	cap = string.match(raw_input, "(%d?%d?%d)%%")
+
+	print(has_battery, has_adapter, cap)
 end
 
-function update_power(widget)
-  cap = 0
-  adapter = false
-  text = sugar.span_str("Bat", {color = "white"})
+function power.display(widget)
+	local output = sugar.span_str("Bat", {color = "white"})
 
-  f = io.popen("acpi -ab", "r")
-  acpi = f:read("*all")
-  f:close()
-
-  if string.match(acpi, "on%-line") then
-    adapter = true
-  end
-
-  cap = tonumber(string.match(acpi, "(%d?%d?%d)%%"))
-
-  if not cap then
-    text = text .. sugar.span_str(" ⌁⌁")
-  else
-    if adapter then
-      text = text .. sugar.span_str(" " .. cap)
+	if has_battery then
+    if has_adapter then
+      output = output .. sugar.span_str(" " .. cap)
     else
-      text = text .. sugar.span_str("↯" .. cap)
+      output = output .. sugar.span_str("↯" .. cap)
     end
-  end
+	else
+		output = output .. sugar.span_str(" ⌁⌁")
+	end
 
-  widget:set_markup(text)
+  widget:set_markup(output)
+end
 
-  if not adapter and cap < 15 then
-    naughty.notify({ title = "Battery Warning",
-                     text = "Battery low! " .. cap .."%" .. " left",
-                     fg = "#ffffff",
-                     bg = "#C91C1C",
-                     timeout = 5,
-                   })
+function power.notify()
+  if not has_adapter and tonumber(cap) < 100 then
+    naughty.notify({title = nil,
+                    text = "Battery low! " .. cap .."%" .. " left",
+                    fg = "#ffffff",
+                    bg = "#C91C1C",
+                    timeout = 0})
   end
 end
 
-update_power(power_widget)
+function power.update()
+	power.get_state()
+	power.display(w)
+	power.notify()
+end
 
-mytimer = timer({timeout = 5})
-mytimer:connect_signal("timeout", function () update_power(power_widget) end)
-mytimer:start()
+function power.new()
+	local timer = capi.timer({timeout = 5})
+	timer:connect_signal("timeout", power.update)
+	timer:start()
+	timer:emit_signal("timeout")
+
+	return w
+end
+
+function power.mt:__call(...)
+	return power.new(...)
+end
+
+return setmetatable(power, power.mt)

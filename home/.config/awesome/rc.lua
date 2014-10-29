@@ -151,6 +151,9 @@ mytextclock = awful.widget.textclock(sugar.span_str("%a %b %d %H:%M"))
 -- Create a volume widget
 volume_widget = volume()
 
+-- Create a textpower widget
+mytextpower = power()
+
 -- Create a wibox for each screen and add it
 mywibox = {}
 mypromptbox = {}
@@ -234,7 +237,7 @@ for s = 1, screen.count() do
     right_layout:add(sugar.space)
     right_layout:add(volume_widget)
     right_layout:add(sugar.space)
-    right_layout:add(power_widget)
+		right_layout:add(mytextpower)
     right_layout:add(sugar.space)
     right_layout:add(mytextclock)
     right_layout:add(sugar.space)
