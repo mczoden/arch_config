@@ -16,8 +16,6 @@ function power.get_state()
 	has_battery = string.match(raw_input, "Battery") and true or false
 	has_adapter = string.match(raw_input, "on%-line") and true or false
 	cap = string.match(raw_input, "(%d?%d?%d)%%")
-
-	print(has_battery, has_adapter, cap)
 end
 
 function power.display(widget)
