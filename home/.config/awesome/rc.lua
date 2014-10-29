@@ -14,7 +14,7 @@ local menubar = require("menubar")
 -- Volume
 local sugar = require("sugar")
 local volume = require("volume")
-require("power")
+local power = require("power")
 require("net")
 -- require("mpd")
 
@@ -325,9 +325,9 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey }, "p", function() mypromptbox[mouse.screen]:run() end),
 
     -- Volume
-    awful.key({ }, "XF86AudioRaiseVolume", function() volume.update("up") end),
-    awful.key({ }, "XF86AudioLowerVolume", function() volume.update("down") end),
-    awful.key({ }, "XF86AudioMute", function() volume.update("mute") end)
+    awful.key({ }, "XF86AudioRaiseVolume", function() volume.adjust("up") end),
+    awful.key({ }, "XF86AudioLowerVolume", function() volume.adjust("down") end),
+    awful.key({ }, "XF86AudioMute", function() volume.adjust("mute") end)
 
     -- awful.key({ }, "XF86AudioPlay", mpd_play_pause),
     -- awful.key({ }, "XF86AudioStop", function() awful.util.spawn("mpc stop -q") end),
