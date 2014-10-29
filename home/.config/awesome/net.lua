@@ -1,31 +1,65 @@
+local setmetatable = setmetatable
+local sugar = require("sugar")
+local textbox = require("wibox.widget.textbox")
 local naughty = require("naughty")
+local capi = {timer = timer}
 
-local eth_if_name = "enp0s25"
-local last_eth_stat = "up"
-local obj = nil
+local ETH_IF_NAME = "enp0s25"
+local eth_last_state = "UNKNOW"
+local eth_curr_state = "UNKNOW"
+local notify_obj = nil
+local w = textbox()
+local net = {mt = {}}
 
-local function trim(s)
-  return s:find'^%s*$' and '' or s:match'^%s*(.*%S)'
+local function get_state()
+	eth_last_state = eth_curr_state
+  local f = assert(io.open("/sys/class/net/" .. ETH_IF_NAME .. "/operstate", "r"))
+  eth_curr_state = f:read()
+  f:close()
 end
 
-function eth_stat()
-  fd = assert(io.open("/sys/class/net/" .. eth_if_name .. "/operstate", "r"))
-  curr_stat = trim(fd:read("*all"))
-  fd:close()
-
-  if curr_stat ~= last_eth_stat then
-    if curr_stat == "up" and obj then
-      naughty.destroy(obj)
-    end
-    obj = naughty.notify({ title = nil,
-                           text = eth_if_name .. " " .. curr_stat,
-                           fg = "#ffffff",
-                           timeout = curr_stat == "up" and 3 or 0
-                         })
-    last_eth_stat = curr_stat
-  end
+local function display()
+	w:set_markup(sugar.span_str("Net ", {color = "white"}) .. 
+	             sugar.span_str(eth_curr_state))
 end
 
-mytimer = timer({timeout = 1})
-mytimer:connect_signal("timeout", function () eth_stat() end)
-mytimer:start()
+local function notify()
+	if eth_curr_state == "up" and notify_obj then
+		naughty.destroy(notify_obj)
+	end
+
+   notify_obj = naughty.notify({title = nil,
+														   text = ETH_IF_NAME .. " " .. eth_curr_state,
+															 fg = "#ffffff",
+															 timeout = eth_curr_state == "up" and 3 or 0})
+end
+
+local function update()
+	get_state()
+
+	if eth_last_state == "UNKNOW" then
+		-- awesome setup
+		display()
+		if eth_curr_state ~= "up" then
+			notify()
+		end
+	elseif eth_curr_state ~= eth_last_state then
+		display()
+		notify()
+	end
+end
+
+function net.new()
+	local timer = capi.timer({timeout = 1})
+	timer:connect_signal("timeout", update)
+	timer:start()
+	timer:emit_signal("timeout")
+
+	return w
+end
+
+function net.mt:__call(...)
+	return net.new(...)
+end
+
+return setmetatable(net, net.mt)

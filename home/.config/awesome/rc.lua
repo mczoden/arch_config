@@ -11,11 +11,10 @@ local beautiful = require("beautiful")
 local naughty = require("naughty")
 local menubar = require("menubar")
 -- Customized
--- Volume
 local sugar = require("sugar")
 local volume = require("volume")
 local power = require("power")
-require("net")
+local net = require("net")
 -- require("mpd")
 
 -- {{{ Error handling
@@ -152,7 +151,10 @@ mytextclock = awful.widget.textclock(sugar.span_str("%a %b %d %H:%M"))
 volume_widget = volume()
 
 -- Create a textpower widget
-mytextpower = power()
+power_widget = power()
+
+-- Create a net widget
+net_widget = net()
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -235,9 +237,11 @@ for s = 1, screen.count() do
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
     right_layout:add(sugar.space)
+		right_layout:add(net_widget)
+    right_layout:add(sugar.space)
     right_layout:add(volume_widget)
     right_layout:add(sugar.space)
-		right_layout:add(mytextpower)
+		right_layout:add(power_widget)
     right_layout:add(sugar.space)
     right_layout:add(mytextclock)
     right_layout:add(sugar.space)
