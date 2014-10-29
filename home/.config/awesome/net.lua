@@ -1,46 +1,72 @@
-local setmetatable = setmetatable
 local sugar = require("sugar")
 local textbox = require("wibox.widget.textbox")
+local awful = require("awful")
 local naughty = require("naughty")
-local capi = {timer = timer}
 
+local capi = {timer = timer}
 local ETH_IF_NAME = "enp0s25"
-local eth_last_state = "UNKNOW"
-local eth_curr_state = "UNKNOW"
+local st_info_tbl = {
+	st_init = nil,
+	st_phy_down = {
+		color = "red",
+		notify = "No Physical connection",
+		timeout = 0
+	},
+	st_phy_up = {
+		notify = "No IP address",
+		timeout = 0
+	},
+	st_has_ip = {
+		color = "green",
+		notify = "Obtains IP address",
+		timeout = 3
+	}
+}
+local eth_last_state = "st_init"
+local eth_curr_state = "st_init"
 local notify_obj = nil
 local w = textbox()
 local net = {mt = {}}
 
 local function get_state()
 	eth_last_state = eth_curr_state
-  local f = assert(io.open("/sys/class/net/" .. ETH_IF_NAME .. "/operstate", "r"))
-  eth_curr_state = f:read()
-  f:close()
+
+	local raw_input = awful.util.pread("ip addr show " .. ETH_IF_NAME)
+	if string.find(raw_input, "inet") then
+		eth_curr_state = "st_has_ip"
+		return
+	end
+
+	if string.find(raw_input, "state UP") then
+		eth_curr_state = "st_phy_up"
+	else
+		eth_curr_state = "st_phy_down"
+	end
 end
 
 local function display()
-	w:set_markup(sugar.span_str("Net ", {color = "white"}) .. 
-	             sugar.span_str(eth_curr_state))
+	w:set_markup(sugar.span_str(ETH_IF_NAME,
+	                            {color = st_info_tbl[eth_curr_state].color}))
 end
 
 local function notify()
-	if eth_curr_state == "up" and notify_obj then
+	if notify_obj then
 		naughty.destroy(notify_obj)
 	end
 
-   notify_obj = naughty.notify({title = nil,
-														   text = ETH_IF_NAME .. " " .. eth_curr_state,
-															 fg = "#ffffff",
-															 timeout = eth_curr_state == "up" and 3 or 0})
+	notify_obj = naughty.notify({title = nil,
+															text = ETH_IF_NAME .. " " ..
+															       st_info_tbl[eth_curr_state].notify,
+															fg = "#ffffff",
+															timeout = st_info_tbl[eth_curr_state].timeout})
 end
 
 local function update()
 	get_state()
 
-	if eth_last_state == "UNKNOW" then
-		-- awesome setup
+	if eth_last_state == "st_init" then
 		display()
-		if eth_curr_state ~= "up" then
+		if eth_curr_state ~= "st_has_ip" then
 			notify()
 		end
 	elseif eth_curr_state ~= eth_last_state then
@@ -50,7 +76,7 @@ local function update()
 end
 
 function net.new()
-	local timer = capi.timer({timeout = 1})
+	local timer = capi.timer({timeout = 2})
 	timer:connect_signal("timeout", update)
 	timer:start()
 	timer:emit_signal("timeout")
