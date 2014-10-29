@@ -5,54 +5,57 @@ local util = require("awful.util")
 local naughty = require("naughty")
 local capi = {timer = timer}
 
+local BAT_LOW_THRESHOLD = 15
 local has_battery = false
 local has_adapter = false
+local is_charging = false
 local cap = ""
 local w = textbox()
 local power = {mt = {}}
 
-function power.get_state()
+local function get_state()
 	local raw_input = util.pread("acpi -ab")
 	has_battery = string.match(raw_input, "Battery") and true or false
 	has_adapter = string.match(raw_input, "on%-line") and true or false
+	is_charging = string.match(raw_input, "Charging") and true or false
 	cap = string.match(raw_input, "(%d?%d?%d)%%")
 end
 
-function power.display(widget)
-	local output = sugar.span_str("Bat", {color = "white"})
+local function display()
+	local output = sugar.span_str("Bat ", {color = "white"})
 
 	if has_battery then
-    if has_adapter then
-      output = output .. sugar.span_str(" " .. cap)
-    else
-      output = output .. sugar.span_str("↯" .. cap)
-    end
+		if has_adapter then
+			output = output .. sugar.span_str("⌁⌁")
+		else
+			output = output .. sugar.span_str(cap)
+		end
 	else
-		output = output .. sugar.span_str(" ⌁⌁")
+		output = output .. sugar.span_str("no")
 	end
 
-  widget:set_markup(output)
+  w:set_markup(output)
 end
 
-function power.notify()
+local function notify()
   if not has_adapter and tonumber(cap) < 15 then
     naughty.notify({title = nil,
                     text = "Battery low! " .. cap .."%" .. " left",
                     fg = "#ffffff",
                     bg = "#C91C1C",
-                    timeout = 0})
+                    timeout = 5})
   end
 end
 
-function power.update()
-	power.get_state()
-	power.display(w)
-	power.notify()
+local function update()
+	get_state()
+	display()
+	notify()
 end
 
 function power.new()
 	local timer = capi.timer({timeout = 5})
-	timer:connect_signal("timeout", power.update)
+	timer:connect_signal("timeout", update)
 	timer:start()
 	timer:emit_signal("timeout")
 
