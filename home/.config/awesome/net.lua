@@ -1,3 +1,5 @@
+local setmetatable = setmetatable
+local string = {find = string.find}
 local sugar = require("sugar")
 local textbox = require("wibox.widget.textbox")
 local awful = require("awful")
@@ -7,17 +9,17 @@ local capi = {timer = timer}
 local st_info_tbl = {
   st_init = nil,
   st_phy_down = {
-    color = "#ff6565",
+    color = "#ff6565", -- red
     notify = "No Physical connection",
     timeout = 0
   },
   st_phy_up = {
-    color = "#eab93d",
+    color = "#eab93d", -- yellow
     notify = "No IP address",
     timeout = 0
   },
   st_has_ip = {
-    color = "#93d44f",
+    color = "#93d44f", -- green
     notify = "Obtains IP address",
     timeout = 3
   }
@@ -34,16 +36,14 @@ local net = {mt = {}}
 local function get_state()
   eth.st_prev = eth.st_curr
 
-  local raw_input = awful.util.pread("ip addr show " .. eth.ifname)
-  if string.find(raw_input, "inet") then
-    eth.st_curr = "st_has_ip"
-    return
-  end
-
-  if string.find(raw_input, "state UP") then
-    eth.st_curr = "st_phy_up"
-  else
+  local raw_input =
+      awful.util.pread("journalctl -u netctl@network.service -o cat -n 3")
+  if string.find(raw_input, "carrier lost") then
     eth.st_curr = "st_phy_down"
+  elseif string.find(raw_input, "leased") then
+    eth.st_curr = "st_has_ip"
+  else
+    eth.st_curr = "st_phy_up"
   end
 end
 
