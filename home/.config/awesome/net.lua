@@ -4,75 +4,77 @@ local awful = require("awful")
 local naughty = require("naughty")
 
 local capi = {timer = timer}
-local ETH_IF_NAME = "enp0s25"
 local st_info_tbl = {
   st_init = nil,
   st_phy_down = {
-    color = "red",
+    color = "#ff6565",
     notify = "No Physical connection",
     timeout = 0
   },
   st_phy_up = {
+    color = "#eab93d",
     notify = "No IP address",
     timeout = 0
   },
   st_has_ip = {
-    color = "green",
+    color = "#93d44f",
     notify = "Obtains IP address",
     timeout = 3
   }
 }
-local eth_last_state = "st_init"
-local eth_curr_state = "st_init"
-local notify_obj = nil
+local eth = {
+  ifname = "enp0s25",
+  st_prev = "st_init",
+  st_curr = "st_init",
+  notify_obj = nil
+}
 local w = textbox()
 local net = {mt = {}}
 
 local function get_state()
-  eth_last_state = eth_curr_state
+  eth.st_prev = eth.st_curr
 
-  local raw_input = awful.util.pread("ip addr show " .. ETH_IF_NAME)
+  local raw_input = awful.util.pread("ip addr show " .. eth.ifname)
   if string.find(raw_input, "inet") then
-    eth_curr_state = "st_has_ip"
+    eth.st_curr = "st_has_ip"
     return
   end
 
   if string.find(raw_input, "state UP") then
-    eth_curr_state = "st_phy_up"
+    eth.st_curr = "st_phy_up"
   else
-    eth_curr_state = "st_phy_down"
+    eth.st_curr = "st_phy_down"
   end
 end
 
 local function display()
-  w:set_markup(sugar.span_str(ETH_IF_NAME,
-                              {color = st_info_tbl[eth_curr_state].color}))
+  if eth.st_curr == eth.st_prev then
+    return
+  end
+
+  w:set_markup(sugar.span_str(eth.ifname,
+                              {color = st_info_tbl[eth.st_curr].color}))
 end
 
 local function notify()
+  if eth.st_prev == "st_init" or eth.st_curr == eth.st_prev then
+    return
+  end
+
   if notify_obj then
     naughty.destroy(notify_obj)
   end
 
-  notify_obj = naughty.notify({title = nil,
-                              text = ETH_IF_NAME .. " " ..
-                                     st_info_tbl[eth_curr_state].notify,
-                              fg = "#ffffff",
-                              timeout = st_info_tbl[eth_curr_state].timeout})
+  notify_obj = naughty.notify({title = eth.ifname,
+                              text = st_info_tbl[eth.st_curr].notify,
+                              fg = st_info_tbl[eth.st_curr].color,
+                              timeout = st_info_tbl[eth.st_curr].timeout})
 end
 
 local function update()
   get_state()
-
-  if eth_last_state == "st_init" then
-    display()
-    if eth_curr_state ~= "st_has_ip" then
-      notify()
-    end
-  elseif eth_curr_state ~= eth_last_state then
-    display()
-    notify()
-  end
+  display()
+  notify()
 end
 
 function net.new()
