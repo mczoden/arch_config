@@ -1,11 +1,20 @@
 local setmetatable = setmetatable
-local string = {find = string.find}
+local string = {find = string.find, match = string.match}
+local table = {concat = table.concat, insert = table.insert}
+local io = {popen = io.popen}
 local sugar = require("sugar")
 local textbox = require("wibox.widget.textbox")
 local awful = require("awful")
 local naughty = require("naughty")
 
 local capi = {timer = timer}
+local eth = {
+  ifname = "enp0s25",
+  st_prev = "st_init",
+  st_curr = "st_init",
+  notify_obj = nil,
+  info_obj = nil
+}
 local st_info_tbl = {
   st_init = nil,
   st_phy_down = {
@@ -24,14 +33,46 @@ local st_info_tbl = {
     timeout = 3
   }
 }
-local eth = {
-  ifname = "enp0s25",
-  st_prev = "st_init",
-  st_curr = "st_init",
-  notify_obj = nil
-}
 local w = textbox()
 local net = {mt = {}}
+
+local function get_addrs(t)
+  local f = io.popen("ip addr show " .. eth.ifname, "r")
+  for l in f:lines() do
+    table.insert(t, string.match(l, "%d+.*/%d+"))
+  end
+  f:close()
+end
+
+local function get_gw()
+  local raw_input = awful.util.pread("ip route")
+  raw_input = string.match(raw_input, "default.-\n")
+  return string.match(raw_input, "%d+.*%.%d+")
+end
+
+local function mouse_enter()
+  local addrs = {}
+  get_addrs(addrs)
+  if #addrs == 0 then
+    return
+  end
+
+  eth.info_obj = naughty.notify({title = eth.ifname,
+                                 text = "\nip:\n"
+                                        .. table.concat(addrs, "\n")
+                                        .. "\ngw:\n"
+                                        .. get_gw(),
+                                 timeout = 0})
+end
+
+local function mouse_leave()
+  naughty.destroy(eth.info_obj)
+end
+
+local function mouse_opt()
+  w:connect_signal("mouse::enter", mouse_enter)
+  w:connect_signal("mouse::leave", mouse_leave)
+end
 
 local function get_state()
   eth.st_prev = eth.st_curr
@@ -82,6 +123,8 @@ function net.new()
   timer:connect_signal("timeout", update)
   timer:start()
   timer:emit_signal("timeout")
+
+  mouse_opt()
 
   return w
 end

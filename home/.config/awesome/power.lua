@@ -9,7 +9,8 @@ local BAT_LOW_THRESHOLD = 15
 local bat = {
   cap = "",
   st_prev = "st_init",
-  st_curr = "st_init"
+  st_curr = "st_init",
+  info_obj = nil
 }
 local st_info_tbl = {
   st_init = nil,
@@ -34,6 +35,21 @@ local st_info_tbl = {
 }
 local w = textbox()
 local power = {mt = {}}
+
+local function mouse_enter()
+  bat.info_obj = naughty.notify({title = nil,
+                                 text = util.pread("acpi"),
+                                 timeout = 0})
+end
+
+local function mouse_leave()
+  naughty.destroy(bat.info_obj)
+end
+
+local function mouse_opt()
+  w:connect_signal("mouse::enter", mouse_enter)
+  w:connect_signal("mouse::leave", mouse_leave)
+end
 
 local function get_state()
   bat.st_prev = bat.st_curr
@@ -91,6 +107,8 @@ function power.new()
   timer:connect_signal("timeout", update)
   timer:start()
   timer:emit_signal("timeout")
+
+  mouse_opt()
 
   return w
 end

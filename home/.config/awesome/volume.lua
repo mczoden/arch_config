@@ -40,7 +40,7 @@ function volume.adjust(op)
   display()
 end
 
-local function bindkey()
+local function mouse_opt()
   w:buttons(awful.util.table.join(
                 awful.button({}, 1, function () volume.adjust("mute") end),
                 awful.button({}, 4, function () volume.adjust("up") end),
@@ -51,7 +51,7 @@ function volume.new()
   get_state()
   display()
 
-  bindkey()
+  mouse_opt()
   return w
 end
 
