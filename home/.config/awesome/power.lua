@@ -6,39 +6,72 @@ local naughty = require("naughty")
 local capi = {timer = timer}
 
 local BAT_LOW_THRESHOLD = 15
-local has_battery = false
-local has_adapter = false
-local is_charging = false
-local cap = ""
+local bat = {
+  cap = "",
+  st_prev = "st_init",
+  st_curr = "st_init"
+}
+local st_info_tbl = {
+  st_init = nil,
+  st_no_bat = {
+    display = function () return "DC" end,
+    color = function () end
+  },
+  st_discharge = {
+    display = function () return bat.cap end,
+    color = function ()
+              return tonumber(bat.cap) < BAT_LOW_THRESHOLD and "#ff6565" or nil
+            end
+  },
+  st_charging = {
+    display = function () return "⌁⌁" end,
+    color = function () return "#93d44f" end
+  },
+  st_uncharge = {
+    display = function () return "⌁⌁" end,
+    color = function () end
+  }
+}
 local w = textbox()
 local power = {mt = {}}
 
 local function get_state()
-  local raw_input = util.pread("acpi -ab")
-  has_battery = string.match(raw_input, "Battery") and true or false
-  has_adapter = string.match(raw_input, "on%-line") and true or false
-  is_charging = string.match(raw_input, "Charging") and true or false
-  cap = string.match(raw_input, "(%d?%d?%d)%%")
-end
+  bat.st_prev = bat.st_curr
 
-local function display()
-  local output = sugar.span_str("Bat ", {color = "white"})
+  local raw_input = util.pread("acpi -ab")
+  local has_battery = string.match(raw_input, "Battery") and true or false
+  local has_adapter = string.match(raw_input, "on%-line") and true or false
+  local is_charging = string.match(raw_input, "Charging") and true or false
+  bat.cap = string.match(raw_input, "(%d?%d?%d)%%")
 
   if has_battery then
     if has_adapter then
-      output = output .. sugar.span_str("⌁⌁")
+      if is_charging then
+        bat.st_curr = "st_charging"
+      else
+        bat.st_curr = "st_uncharge"
+      end
     else
-      output = output .. sugar.span_str(cap)
+      bat.st_curr = "st_discharge"
     end
   else
-    output = output .. sugar.span_str("no")
+    bat.st_curr = "st_no_bat"
+  end
+end
+
+local function display()
+  if bat.st_curr == bat.st_prev then
+    return
   end
 
-  w:set_markup(output)
+  w:set_markup(sugar.span_str("Bat ", {color = "white"}) ..
+               sugar.span_str(st_info_tbl[bat.st_curr].display(),
+                              {color = st_info_tbl[bat.st_curr].color()}))
 end
 
 local function notify()
-  if not has_adapter and tonumber(cap) < 15 then
+  if bat.st_curr == "st_discharge"
+      and tonumber(bat.cap) < BAT_LOW_THRESHOLD then
     naughty.notify({title = nil,
                     text = "Battery low! " .. cap .."%" .. " left",
                     fg = "#ffffff",
