@@ -15,7 +15,6 @@ local sugar = require("sugar")
 local volume = require("volume")
 local power = require("power")
 local net = require("net")
--- require("mpd")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -46,7 +45,7 @@ end
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init("~/.config/awesome/themes/zenburn/theme.lua")
 
-theme.font = "Dina 10"
+theme.font = sugar.DFL_FONT .. " " .. sugar.DFL_FONT_SIZE
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvt"
