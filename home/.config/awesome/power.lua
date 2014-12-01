@@ -25,8 +25,8 @@ local st_info_tbl = {
     st_discharge = {
         display = function () return bat.cap end,
         color = function ()
-                    return tonumber(bat.cap) < BAT_LOW_THRESHOLD and "#ff6565" or nil
-                end
+            return tonumber(bat.cap) < BAT_LOW_THRESHOLD and "#ff6565" or nil
+        end
     },
     st_charging = {
         display = function () return "⌁⌁" end,
@@ -84,9 +84,9 @@ local function display()
         return
     end
 
-    w:set_markup(sugar.span_str("Bat ", {color = "white"}) ..
-    sugar.span_str(st_info_tbl[bat.st_curr].display(),
-    {color = st_info_tbl[bat.st_curr].color()}))
+    w:set_markup(sugar.span_str("Bat ", {color = "white"})
+                 ..  sugar.span_str(st_info_tbl[bat.st_curr].display(),
+                 {color = st_info_tbl[bat.st_curr].color()}))
 end
 
 local function notify()

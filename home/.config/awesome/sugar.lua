@@ -4,8 +4,7 @@ local sugar = {}
 
 sugar.DFL_FONT = "Dina"
 sugar.DFL_FONT_SIZE = "10"
-sugar.space = wibox.widget.textbox()
-sugar.space:set_text("  ")
+sugar.space = wibox.widget.textbox("  ", true)
 
 function sugar.span_str(str, style)
     output = "<span "

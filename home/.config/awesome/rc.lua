@@ -43,7 +43,7 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init("~/.config/awesome/themes/zenburn/theme.lua")
+beautiful.init("~/.config/awesome/themes/anrxc/theme.lua")
 
 theme.font = sugar.DFL_FONT .. " " .. sugar.DFL_FONT_SIZE
 
@@ -228,6 +228,7 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the left
     local left_layout = wibox.layout.fixed.horizontal()
     left_layout:add(mylauncher)
+    left_layout:add(wibox.widget.textbox(" ", true))
     left_layout:add(mytaglist[s])
     left_layout:add(mylayoutbox[s])
     left_layout:add(mypromptbox[s])
@@ -345,12 +346,14 @@ clientkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
     awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end),
+    --[[
     awful.key({ modkey,           }, "n",
         function (c)
             -- The client currently has the input focus, so it cannot be
             -- minimized, since minimized clients can't have the focus.
             c.minimized = true
         end),
+    ]]--
     awful.key({ modkey,           }, "m",
         function (c)
             c.maximized_horizontal = not c.maximized_horizontal
