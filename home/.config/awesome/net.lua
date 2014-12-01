@@ -9,14 +9,14 @@ local table = {
     concat = table.concat,
     insert = table.insert,
 }
-local io = {popen = io.popen}
+local io = {open = io.open}
 local sugar = require("sugar")
 local textbox = require("wibox.widget.textbox")
 local awful = require("awful")
 local naughty = require("naughty")
 
 local capi = {timer = timer}
-local eth = {
+local en = {
     ifname = "enp0s25",
     st_prev = "st_init",
     st_curr = "st_init",
@@ -45,7 +45,7 @@ local w = textbox()
 local net = {mt = {}}
 
 local function get_addrs(t)
-    local raw_input = awful.util.pread("ip addr show " .. eth.ifname)
+    local raw_input = awful.util.pread("ip addr show " .. en.ifname)
 
     for ip in string.gmatch(raw_input, "[%d%.]*/%d+") do
         table.insert(t, ip)
@@ -59,7 +59,7 @@ local function get_gw()
 end
 
 local function mouse_enter()
-    if eth.st_curr ~= "st_has_ip" then
+    if en.st_curr ~= "st_has_ip" then
         return
     end
 
@@ -69,7 +69,7 @@ local function mouse_enter()
         return
     end
 
-    eth.info_obj = naughty.notify({title = eth.ifname,
+    en.info_obj = naughty.notify({title = en.ifname,
                                    text = "\nIP:\n"
                                    .. table.concat(addrs, "\n")
                                    .. "\nDefault Gateway:\n"
@@ -78,7 +78,7 @@ local function mouse_enter()
 end
 
 local function mouse_leave()
-    naughty.destroy(eth.info_obj)
+    naughty.destroy(en.info_obj)
 end
 
 local function mouse_opt()
@@ -87,47 +87,55 @@ local function mouse_opt()
 end
 
 local function get_state()
-    eth.st_prev = eth.st_curr
+    en.st_prev, en.st_curr = en.st_curr, "st_phy_down"
 
-    local raw_input =
-        awful.util.pread("journalctl -u netctl@network.service -o cat -n 3")
-    if string.find(raw_input, "carrier lost") then
-        eth.st_curr = "st_phy_down"
-    elseif string.find(raw_input, "leased")
+    local f = io.open("/sys/class/net/" .. en.ifname .. "/operstate", "r")
+    if not f then
+        return
+    end
+    local raw_input = f:read("*l")
+    f:close()
+    if string.find(raw_input, "down") then
+        return
+    end
+
+    en.st_curr = "st_phy_up"
+
+    raw_input =
+        awful.util.pread("journalctl -u netctl@endhcp.service -o cat -n 3")
+    if string.find(raw_input, "leased")
             or string.find(raw_input, "Started") then
-        eth.st_curr = "st_has_ip"
-    else
-        eth.st_curr = "st_phy_up"
+        en.st_curr = "st_has_ip"
     end
 end
 
 local function display()
-    if eth.st_curr == eth.st_prev then
+    if en.st_curr == en.st_prev then
         return
     end
 
-    w:set_markup(sugar.span_str(eth.ifname,
-                                {color = st_info_tbl[eth.st_curr].color}))
+    w:set_markup(sugar.span_str(en.ifname,
+                                {color = st_info_tbl[en.st_curr].color}))
 end
 
 local function notify()
-    if eth.st_curr == "st_has_ip" then
-        if eth.notify_obj then
-            naughty.destroy(eth.notify_obj)
+    if en.st_curr == "st_has_ip" then
+        if en.notify_obj then
+            naughty.destroy(en.notify_obj)
         end
         return
-    elseif eth.st_curr == eth.st_prev then
+    elseif en.st_curr == en.st_prev then
         return
     end
 
-    if eth.notify_obj then
-        naughty.destroy(eth.notify_obj)
+    if en.notify_obj then
+        naughty.destroy(en.notify_obj)
     end
 
-    eth.notify_obj = naughty.notify({title = eth.ifname,
-                                     text = st_info_tbl[eth.st_curr].notify,
-                                     fg = st_info_tbl[eth.st_curr].color,
-                                     timeout = st_info_tbl[eth.st_curr].timeout})
+    en.notify_obj = naughty.notify({title = en.ifname,
+                                     text = st_info_tbl[en.st_curr].notify,
+                                     fg = st_info_tbl[en.st_curr].color,
+                                     timeout = st_info_tbl[en.st_curr].timeout})
 end
 
 local function update()
