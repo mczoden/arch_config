@@ -1,0 +1,4 @@
+patch:
+  schema_list:
+    - schema: double_pinyin_abc
+  ascii_composer/switch_key/Shift_L: commit_code

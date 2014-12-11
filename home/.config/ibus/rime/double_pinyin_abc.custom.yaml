@@ -1,0 +1,9 @@
+patch:
+  "punctuator/full_sharp":
+      "\\": "、"
+      "/": ["/", "／", "÷"]
+  "punctuator/half_shape":
+      "\\": "、"
+      "/": ["/", "／", "÷"]
+  "punctuator/import_preset": symbols
+  "recognizer/patterns/punct": "^i([a-z]+|[0-9])$"
