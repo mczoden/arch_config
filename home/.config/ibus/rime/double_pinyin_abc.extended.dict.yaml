@@ -1,0 +1,13 @@
+# Rime dictionary
+---
+name: double_pinyin_abc.extended
+version: "1"
+sort: by_weight
+use_preset_vocabulary: true
+import_tables:
+  - luna_pinyin
+  - acg_cv
+  - acg_animate_and_character
+  - acg_moe_attribute
+  - acg_moe_term
+...
