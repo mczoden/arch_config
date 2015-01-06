@@ -14,7 +14,7 @@ function sugar.span_str (str, style)
   end
 
   if style.font then
-    output = output.. "font='" .. style.font
+    output = output .. "font='" .. style.font
   else
     output = output .. "font='" .. sugar.DFL_FONT
   end

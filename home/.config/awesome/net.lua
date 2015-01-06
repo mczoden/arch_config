@@ -102,7 +102,9 @@ local function get_state ()
   en.st_curr = "st_phy_up"
 
   raw_input = util.pread("journalctl -u netctl@endhcp.service -o cat -n 3")
-  if string.find(raw_input, "leased") or string.find(raw_input, "Started") then
+  if string.find(raw_input, "leased")
+      or string.find(raw_input, "Started")
+      or string.find(raw_input, "rebinding") then
     en.st_curr = "st_has_ip"
   end
 end

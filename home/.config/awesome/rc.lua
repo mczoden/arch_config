@@ -112,7 +112,7 @@ for s = 1, screen.count() do
                         { layouts[LAYOUT_TILE_TOP],
                           layouts[LAYOUT_TILE_TOP],
                           layouts[LAYOUT_FLOATING],
-                          layouts[LAYOUT_FLOATING],
+                          layouts[LAYOUT_TILE_TOP],
                           layouts[LAYOUT_FLOATING] })
 end
 -- }}}
@@ -437,13 +437,15 @@ awful.rules.rules = {
     --   properties = { tag = tags[1][2] } },
     { rule = { class = "Firefox" },
       properties = { tag = tags[1][tag_idx_lst.net],
-                     switchtotag = true } },
+                     switchtotag = false } },
     { rule = { class = "Zathura" },
       properties = { tag = tags[1][tag_idx_lst.doc],
-                     switchtotag = true,
+                     switchtotag = false, } },
+                     --[[
                      maximized_vertical = true,
                      maximized_horizontal = true } },
-     { rule = { class = "URxvt" },
+                     ]]--
+    { rule = { class = "URxvt" },
        properties = { size_hints_honor = false } },
     { rule = { class = "libreoffice" },
       properties = { tag = tags[1][tag_idx_lst.ofc],
