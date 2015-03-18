@@ -81,19 +81,21 @@ end
 
 local function display ()
   if bat.st_curr == bat.st_prev then
-    return
+    if bat.st_curr ~= "st_discharge" then
+      return
+    end
   end
 
   w:set_markup(sugar.span_str("Bat ", {color = "white"})
                ..  sugar.span_str(st_info_tbl[bat.st_curr].display(),
-               {color = st_info_tbl[bat.st_curr].color()}))
+                                  {color = st_info_tbl[bat.st_curr].color()}))
 end
 
 local function notify ()
   if bat.st_curr == "st_discharge"
       and tonumber(bat.cap) < BAT_LOW_THRESHOLD then
     naughty.notify({title = nil,
-                    text = "Battery low! " .. cap .."%" .. " left",
+                    text = "Battery low! " .. bat.cap .."%" .. " left",
                     fg = "#ffffff",
                     bg = "#C91C1C",
                     timeout = 5})
