@@ -23,7 +23,7 @@ static const Rule rules[] = {
 	{ "Chromium", 	NULL,	NULL,	1 << 2, False,	-1 },
 	{ "Wireshark",	NULL,	NULL,	1 << 3,	False,	-1 },
 	{ "libreoffice",	NULL,	NULL,	1 << 4,	False,	-1 },
-    { "Zathura",    NULL,   NULL,   1 << 4, False, -1 },
+	{ "Zathura",    NULL,   NULL,   1 << 4, False, -1 },
 };
 
 /* layout(s) */
