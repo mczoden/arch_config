@@ -1,5 +1,6 @@
 function VimrcVim()
     set nocompatible
+    set shell=/bin/sh
 endfunction VimrcVim
 call VimrcVim()
 
