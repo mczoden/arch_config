@@ -1,7 +1,7 @@
 set --universal --export BROWSER chromium
 set --universal --export EDITOR vim
 set --universal --export GREP_COLOR 36
-set --unexport fish_greeting
+set fish_greeting
 
 env -i HOME=$HOME dash -l -c printenv | sed -e '/PATH/s/:/ /g;s/=/ /;s/^/set -x /' | source
 
