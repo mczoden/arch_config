@@ -1,6 +1,7 @@
 function fish_prompt --description "Write out the prompt"
     set --local prefix ""
     set --local suffix ""
+    set --local realhome ~
 
     if set -q DISPLAY
         set prefix "┌─"
@@ -14,6 +15,6 @@ function fish_prompt --description "Write out the prompt"
     end
 
     echo -s "$prefix" [ (set_color $fish_color_cwd) "$USER" @ "$__fish_prompt_hostname" (set_color normal) ] \
-        [ (set_color blue --bold) "$PWD" (set_color normal) ]
+        [ (set_color blue --bold) (echo $PWD | sed -e "s|$realhome|~|") (set_color normal) ]
     echo -n -s "$suffix"
 end
