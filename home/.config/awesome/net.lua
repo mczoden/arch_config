@@ -10,6 +10,7 @@ local table = {
   insert = table.insert,
 }
 local io = {open = io.open}
+local os = {execute = os.execute}
 local sugar = require("sugar")
 local textbox = require("wibox.widget.textbox")
 local util = require("awful.util")
@@ -21,7 +22,11 @@ local en = {
   st_prev = "st_init",
   st_curr = "st_init",
   notify_obj = nil,
-  info_obj = nil
+  info_obj = nil,
+  systemd_service_list = {
+    'netctl@endhcp.service',
+    'netctl@enstatic.service'
+  }
 }
 local st_info_tbl = {
   st_init = nil,
@@ -55,7 +60,11 @@ end
 local function get_gw ()
   local raw_input = util.pread("ip route")
   raw_input = string.match(raw_input, "default.-[%d%.]+")
-  return string.sub(raw_input, (string.find(raw_input, "%d")))
+  if raw_input then
+    return string.sub(raw_input, (string.find(raw_input, "%d")))
+  else
+    return 'n/a'
+  end
 end
 
 local function mouse_enter ()
@@ -101,11 +110,12 @@ local function get_state ()
 
   en.st_curr = "st_phy_up"
 
-  raw_input = util.pread("journalctl -u netctl@endhcp.service -o cat -n 3")
-  if string.find(raw_input, "leased")
-      or string.find(raw_input, "Started")
-      or string.find(raw_input, "rebinding") then
-    en.st_curr = "st_has_ip"
+  for i, v in ipairs(en.systemd_service_list) do
+    cmd = 'systemctl -q is-active ' .. v
+    is_term_succ, term_type, exit_code = os.execute(cmd)
+    if is_term_succ then
+      en.st_curr = 'st_has_ip'
+    end
   end
 end
 
@@ -145,7 +155,7 @@ local function update ()
 end
 
 function net.new ()
-  local timer = capi.timer({timeout = 2})
+  local timer = capi.timer({timeout = 3})
   timer:connect_signal("timeout", update)
   timer:start()
   timer:emit_signal("timeout")
