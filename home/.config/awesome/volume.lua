@@ -13,11 +13,11 @@ local is_mute = false
 local w = textbox()
 local volume = {mt = {}}
 
-local function get_state ()
-  local raw_input = awful.util.pread("amixer get Master")
-  vol = string.match(raw_input, "(%d?%d?%d)%%") or "0"
+local function amixer_paser (amixer_output)
+  print(amixer_output)
+  vol = string.match(amixer_output, "(%d?%d?%d)%%") or "0"
 
-  local state = string.match(raw_input, "%[(o[^%]]*)%]") or "off"
+  local state = string.match(amixer_output, "%[(o[^%]]*)%]") or "off"
   is_mute = string.find(state, "off", 1, true) and true or false
 end
 
@@ -26,35 +26,33 @@ local function display ()
   sugar.span_str(is_mute and " --" or string.format("%3d", vol)))
 end
 
-function volume.adjust (op)
-  if op == "up" then
-    awful.util.spawn_with_shell("amixer set Master 5%+ > /dev/null")
-    if is_mute then
-      awful.util.spawn_with_shell("amixer set Master toggle > /dev/null")
-    end
-  elseif op == "down" then
-    awful.util.spawn_with_shell("amixer set Master 5%- > /dev/null")
-    if is_mute then
-      awful.util.spawn_with_shell("amixer set Master toggle > /dev/null")
-    end
+function volume.adjust_and_display (op)
+  local cmd = ""
+
+  if op == nil then
+    cmd = "amixer get Master"
   elseif op == "mute" then
-    awful.util.spawn_with_shell("amixer set Master toggle > /dev/null")
+    cmd = "amixer set Master toggle"
+  else
+    cmd = string.format("amixer set Master 5%%%s", op == "up" and "+" or "-")
+    if is_mute then
+      cmd = cmd .. " toggle"
+    end
   end
 
-  get_state()
+  amixer_paser(awful.util.pread(cmd))
   display()
 end
 
 local function mouse_opt ()
   w:buttons(awful.util.table.join(
-    awful.button({}, 1, function () volume.adjust("mute") end),
-    awful.button({}, 4, function () volume.adjust("up") end),
-    awful.button({}, 5, function () volume.adjust("down") end)))
+    awful.button({}, 1, function () volume.adjust_and_display("mute") end),
+    awful.button({}, 4, function () volume.adjust_and_display("up") end),
+    awful.button({}, 5, function () volume.adjust_and_display("down") end)))
 end
 
 function volume.new ()
-  get_state()
-  display()
+  volume.adjust_and_display()
 
   mouse_opt()
   return w
