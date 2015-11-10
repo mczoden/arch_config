@@ -7,3 +7,5 @@ env -i HOME=$HOME dash -l -c printenv | sed -e '/PATH/s/:/ /g;s/=/ /;s/^/set -x 
 
 set PATH ~/pro/le-jour $PATH
 set --unexport fish_color_valid_path
+
+set --universal __mc_os (uname)
