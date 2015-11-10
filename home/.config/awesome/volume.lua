@@ -14,7 +14,6 @@ local w = textbox()
 local volume = {mt = {}}
 
 local function amixer_paser (amixer_output)
-  print(amixer_output)
   vol = string.match(amixer_output, "(%d?%d?%d)%%") or "0"
 
   local state = string.match(amixer_output, "%[(o[^%]]*)%]") or "off"
