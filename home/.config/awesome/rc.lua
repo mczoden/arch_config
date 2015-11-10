@@ -329,9 +329,9 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey }, "p", function() mypromptbox[mouse.screen]:run() end),
 
     -- Volume
-    awful.key({ }, "XF86AudioRaiseVolume", function() volume.adjust("up") end),
-    awful.key({ }, "XF86AudioLowerVolume", function() volume.adjust("down") end),
-    awful.key({ }, "XF86AudioMute", function() volume.adjust("mute") end)
+    awful.key({ }, "XF86AudioRaiseVolume", function() volume.adjust_and_display("up") end),
+    awful.key({ }, "XF86AudioLowerVolume", function() volume.adjust_and_display("down") end),
+    awful.key({ }, "XF86AudioMute", function() volume.adjust_and_display("mute") end)
 
     -- awful.key({ }, "XF86AudioPlay", mpd_play_pause),
     -- awful.key({ }, "XF86AudioStop", function() awful.util.spawn("mpc stop -q") end),
