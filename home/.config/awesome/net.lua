@@ -1,172 +1,190 @@
 local setmetatable = setmetatable
 local string = {
-  find = string.find,
-  match = string.match,
-  gmatch = string.gmatch,
-  sub = string.sub,
+  match = string.match
 }
 local table = {
-  concat = table.concat,
-  insert = table.insert,
+  insert = table.insert
 }
-local io = {open = io.open}
-local os = {execute = os.execute}
+local io = {
+  popen = io.popen
+}
+local Interface = require('interface')
 local sugar = require("sugar")
-local textbox = require("wibox.widget.textbox")
-local util = require("awful.util")
-local naughty = require("naughty")
-
 local capi = {timer = timer}
-local en = {
-  ifname = "enp0s25",
-  st_prev = "st_init",
-  st_curr = "st_init",
-  notify_obj = nil,
-  info_obj = nil,
-  systemd_service_list = {
-    'netctl@endhcp.service',
-    'netctl@enstatic.service'
-  }
-}
-local st_info_tbl = {
-  st_init = nil,
-  st_phy_down = {
+local textbox = require("wibox.widget.textbox")
+local naughty = require("naughty")
+local capi = {timer = timer}
+
+-- state_info_tbl
+--
+-- infomation about text color, notify method
+local state_info_tbl = {
+  hw_down = {
     color = "#ff6565", -- red
     notify = "No Physical connection",
     timeout = 0
   },
-  st_phy_up = {
-    color = "#eab93d", -- yellow
-    notify = "No IP address",
-    timeout = 0
-  },
-  st_has_ip = {
+  has_route = {
     color = "#93d44f", -- green
     notify = "Obtains IP address",
     timeout = 3
+  },
+  no_route = {
+    color = "#eab93d", -- yellow
+    notify = "No IP address",
+    timeout = 0
   }
 }
-local w = textbox()
-local net = {mt = {}}
 
-local function get_addrs (t)
-  local raw_input = util.pread("ip addr show " .. en.ifname)
+-- InterfaceWidgetEntry
+--
+-- one single physical device information and its awesome widget
+local InterfaceWidgetEntry = {mt = {}}
 
-  for ip in string.gmatch(raw_input, "[%d%.]*/%d+") do
-    table.insert(t, ip)
-  end
+function InterfaceWidgetEntry:new (index, name, hw_state)
+  local o = {}
+  o.interface = Interface(index, name, hw_state)
+  o.widget = textbox()
+
+  return o
 end
 
-local function get_gw ()
-  local raw_input = util.pread("ip route")
-  raw_input = string.match(raw_input, "default.-[%d%.]+")
-  if raw_input then
-    return string.sub(raw_input, (string.find(raw_input, "%d")))
-  else
-    return 'n/a'
-  end
+function InterfaceWidgetEntry.mt:__call (...)
+  return InterfaceWidgetEntry:new(...)
 end
 
-local function mouse_enter ()
-  if en.st_curr ~= "st_has_ip" then
-    return
-  end
+setmetatable(InterfaceWidgetEntry, InterfaceWidgetEntry.mt)
 
-  local addrs = {}
-  get_addrs(addrs)
-  if #addrs == 0 then
-    return
-  end
+-- Widgets
+--
+-- all instance of InterfaceWidgetEntry
+local Widgets = {i_w_list = {}}
 
-  en.info_obj = naughty.notify({title = en.ifname,
-                                text = "\nIP:\n"
-                                       .. table.concat(addrs, "\n")
-                                       .. "\nDefault Gateway:\n"
-                                       .. get_gw(),
-                                timeout = 0})
-end
-
-local function mouse_leave ()
-  naughty.destroy(en.info_obj)
-end
-
-local function mouse_opt ()
-  w:connect_signal("mouse::enter", mouse_enter)
-  w:connect_signal("mouse::leave", mouse_leave)
-end
-
-local function get_state ()
-  en.st_prev, en.st_curr = en.st_curr, "st_phy_down"
-
-  local f = io.open("/sys/class/net/" .. en.ifname .. "/operstate", "r")
-  if not f then
-    return
-  end
-  local raw_input = f:read("*l")
-  f:close()
-  if string.find(raw_input, "down") then
-    return
-  end
-
-  en.st_curr = "st_phy_up"
-
-  for i, v in ipairs(en.systemd_service_list) do
-    cmd = 'systemctl -q is-active ' .. v
-    is_term_succ, term_type, exit_code = os.execute(cmd)
-    if is_term_succ then
-      en.st_curr = 'st_has_ip'
+function Widgets:get_entry_by_name (name)
+  for _, entry in pairs(self.i_w_list) do
+    if entry.interface.name == name then
+      return entry
     end
   end
 end
+
+function Widgets:add_entry(index, name, hw_state)
+  local entry = InterfaceWidgetEntry(index, name, hw_state)
+  table.insert(self.i_w_list, entry)
+
+  return entry
+end
+
+function Widgets:update_ip_addr_info ()
+  local current_interface = nil
+  local f = io.popen('ip addr show')
+
+  for line in f:lines() do
+    local index, name, hw_state = string.match(
+      line, '^(%d+): (%g+): .- state (%a+)')
+
+    if index then
+      if name == 'lo' then
+        -- information about loopback will be stored in this table,
+        -- but will not be inserted into i_w_list
+        -- good or bad solution?
+        --
+        -- add other interface name if it should be skipped
+        current_interface = Interface(index, name, hw_state)
+      else -- name ~= 'lo'
+        local entry = self:get_entry_by_name(name)
+        if entry then
+          entry.interface.addr_list = {}
+          entry.interface.hw_state = hw_state
+        else
+          -- create a new Widget
+          local entry = self:add_entry(index, name, hw_state)
+          current_interface = entry.interface
+        end
+      end
+    else -- not index, means the detail of interface
+      local ip = string.match(line, '[%d%.]*/%d+')
+      if ip then
+        assert(current_interface):append_addr(ip)
+      end
+    end
+  end
+  f:close()
+end
+
+function Widgets:update_ip_route_info ()
+  local f = io.popen('ip route')
+
+  for _, entry in pairs(self.i_w_list) do
+    entry.interface.default_route = nil
+  end
+
+  for line in f:lines() do
+    local default_route, name = string.match(line,
+                                             'def.-([%d%.]+%d+) dev (%g+)')
+    if default_route then
+      local interface = assert(self:get_entry_by_name(name)).interface
+      interface.default_route = default_route
+    end
+  end
+  f:close()
+end
+
+function Widgets:update_state ()
+  for _, entry in pairs(self.i_w_list) do
+    if entry.interface.hw_state == 'DOWN' then
+      entry.interface:update_state('hw_down')
+    elseif entry.interface.default_route then
+      entry.interface:update_state('has_route')
+    else
+      entry.interface:update_state('no_route')
+    end
+  end
+end
+
+function Widgets:all_widgets ()
+  local i = 0
+  return function ()
+    i = i + 1
+    if i > #self.i_w_list then
+      return nil
+    end
+    return self.i_w_list[i].widget
+  end
+end
+
+local net2 = {mt = {}}
 
 local function display ()
-  if en.st_curr == en.st_prev then
-    return
-  end
+  for _, entry in pairs(Widgets.i_w_list) do
+    if entry.interface.curr_state ~= entry.interface.prev_state then
+      local color = state_info_tbl[entry.interface.curr_state].color
 
-  w:set_markup(sugar.span_str(en.ifname,
-                              {color = st_info_tbl[en.st_curr].color}))
-end
-
-local function notify ()
-  if en.st_curr == "st_has_ip" then
-    if en.notify_obj then
-      naughty.destroy(en.notify_obj)
+      entry.widget:set_markup(sugar.span_str(entry.interface.name,
+                                             {color = color}))
     end
-    return
-  elseif en.st_curr == en.st_prev then
-    return
   end
-
-  if en.notify_obj then
-    naughty.destroy(en.notify_obj)
-  end
-
-  en.notify_obj = naughty.notify({title = en.ifname,
-                                  text = st_info_tbl[en.st_curr].notify,
-                                  fg = st_info_tbl[en.st_curr].color,
-                                  timeout = st_info_tbl[en.st_curr].timeout})
 end
 
 local function update ()
-  get_state()
+  Widgets:update_ip_addr_info()
+  Widgets:update_ip_route_info()
+  Widgets:update_state()
   display()
-  notify()
 end
 
-function net.new ()
+function net2:new ()
   local timer = capi.timer({timeout = 3})
+
   timer:connect_signal("timeout", update)
   timer:start()
   timer:emit_signal("timeout")
 
-  mouse_opt()
-
-  return w
+  return Widgets:all_widgets()
 end
 
-function net.mt:__call (...)
-  return net.new(...)
+function net2.mt:__call (...)
+  return net2:new (...)
 end
 
-return setmetatable(net, net.mt)
+return setmetatable(net2, net2.mt)

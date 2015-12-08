@@ -14,7 +14,7 @@ local menubar = require("menubar")
 local sugar = require("sugar")
 local volume = require("volume")
 local power = require("power")
-local net = require("net")
+local net = require('net')
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -49,7 +49,7 @@ theme.font = sugar.DFL_FONT .. " " .. sugar.DFL_FONT_SIZE
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvt"
-terminal_cmd = terminal .. " -e bash"
+terminal_cmd = terminal .. " -e /usr/bin/fish"
 editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -97,7 +97,7 @@ end
 -- }}}
 --]]
 
-local tag_name_lst = { "cli", "etc", "net", "doc", "ofc" }
+local tag_name_lst = { "cli", "etc", "net", "pdf", "office", "ide" }
 local tag_idx_lst = { }
 for k, v in pairs(tag_name_lst) do
   tag_idx_lst[v] = k
@@ -113,6 +113,7 @@ for s = 1, screen.count() do
                           layouts[LAYOUT_TILE_TOP],
                           layouts[LAYOUT_FLOATING],
                           layouts[LAYOUT_TILE_TOP],
+                          layouts[LAYOUT_FLOATING],
                           layouts[LAYOUT_FLOATING] })
 end
 -- }}}
@@ -153,7 +154,9 @@ volume_widget = volume()
 power_widget = power()
 
 -- Create a net widget
-net_widget = net()
+net_widgets = net()
+
+-- my_net_wibox = awful.wibox()
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -237,12 +240,16 @@ for s = 1, screen.count() do
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(wibox.widget.systray()) end
     right_layout:add(sugar.space)
-    right_layout:add(net_widget)
-    right_layout:add(sugar.space)
+    for w in net_widgets do
+      right_layout:add(w)
+      right_layout:add(sugar.space)
+    end
     right_layout:add(volume_widget)
     right_layout:add(sugar.space)
     right_layout:add(power_widget)
     right_layout:add(sugar.space)
+    --
+    -- right_layout:add(my_net_wibox)
     right_layout:add(mytextclock)
     right_layout:add(sugar.space)
     -- right_layout:add(mylayoutbox[s])
@@ -438,8 +445,11 @@ awful.rules.rules = {
     { rule = { class = "Firefox" },
       properties = { tag = tags[1][tag_idx_lst.net],
                      switchtotag = false } },
+    { rule = { class = "chromium" },
+      properties = { tag = tags[1][tag_idx_lst.net],
+                     switchtotag = false } },
     { rule = { class = "Zathura" },
-      properties = { tag = tags[1][tag_idx_lst.doc],
+      properties = { tag = tags[1][tag_idx_lst.pdf],
                      switchtotag = false, } },
                      --[[
                      maximized_vertical = true,
@@ -448,10 +458,16 @@ awful.rules.rules = {
     { rule = { class = "URxvt" },
        properties = { size_hints_honor = false } },
     { rule = { class = "libreoffice" },
-      properties = { tag = tags[1][tag_idx_lst.ofc],
-                     switchtotag = true,
+      properties = { tag = tags[1][tag_idx_lst.office],
+                     switchtotag = false,
                      maximized_vertical = true,
                      maximized_horizontal = true } },
+    { rule = { class = "jetbrains-pycharm-ce" },
+      properties = { tag = tags[1][tag_idx_lst.ide],
+                     switchtotag = false } },
+    { rule = { class = "eric6" },
+      properties = { tag = tags[1][tag_idx_lst.ide],
+                     switchtotag = false } },
 }
 -- }}}
 
