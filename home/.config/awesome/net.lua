@@ -13,7 +13,6 @@ local sugar = require("sugar")
 local capi = {timer = timer}
 local textbox = require("wibox.widget.textbox")
 local naughty = require("naughty")
-local capi = {timer = timer}
 
 -- state_info_tbl
 --
@@ -153,7 +152,7 @@ function Widgets:all_widgets ()
   end
 end
 
-local net2 = {mt = {}}
+local net = {mt = {}}
 
 local function display ()
   for _, entry in pairs(Widgets.i_w_list) do
@@ -173,7 +172,7 @@ local function update ()
   display()
 end
 
-function net2:new ()
+function net:new ()
   local timer = capi.timer({timeout = 3})
 
   timer:connect_signal("timeout", update)
@@ -183,8 +182,8 @@ function net2:new ()
   return Widgets:all_widgets()
 end
 
-function net2.mt:__call (...)
-  return net2:new (...)
+function net.mt:__call (...)
+  return net:new (...)
 end
 
-return setmetatable(net2, net2.mt)
+return setmetatable(net, net.mt)
