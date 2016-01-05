@@ -8,5 +8,7 @@ function tmux
             else
                 command tmux -2 $argv
             end
+        case Darwin
+            command tmux $argv
     end
 end
