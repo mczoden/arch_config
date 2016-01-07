@@ -10,5 +10,7 @@ function tmux
             end
         case Darwin
             command tmux $argv
+        case *
+            command tmux $argv
     end
 end
