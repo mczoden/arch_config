@@ -1,3 +1,6 @@
+set --erase LANGUAGE
+set --erase LC_CTYPE
+
 set --universal --export BROWSER chromium
 set --universal --export EDITOR vim
 set --universal --export GREP_COLOR 36
