@@ -1,3 +1,12 @@
+set nocompatible
+filetype off
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'hynek/vim-python-pep8-indent'
+call vundle#end()
+filetype plugin indent on 
+
 function VimrcVim()
     set nocompatible
     set shell=/bin/sh
@@ -77,6 +86,10 @@ function VimrcAutoCmd()
                     \ elseif &filetype == "lua" |
                     \   set shiftwidth=2 |
                     \   set tabstop=2 |
+                    \ elseif &filetype == "python" |
+                    \   set cindent |
+                    \   call ColorPychimp() |
+                    \   set colorcolumn=79 |
                     \ endif
     augroup END
 endfunction VimrcAutoCmd
@@ -142,6 +155,11 @@ function ColorLucius()
     " hi NonText      ctermbg=NONE
 endfunction ColorLucius
 
+function ColorPychimp()
+    colorscheme pychimp
+    call ColorGeneral()
+endfunction ColorPychimp
+
 function VimrcColor()
     if ! has('gui_running')
         set t_Co=256
@@ -151,7 +169,7 @@ function VimrcColor()
     if os == "Darwin"
         call ColorLucius()
     else
-        call ColorDesert256()
+        call ColorGeneral()
     endif
 endfunction VimrcColor
 call VimrcColor()
