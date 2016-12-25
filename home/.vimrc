@@ -1,17 +1,10 @@
-set nocompatible
-filetype off
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'hynek/vim-python-pep8-indent'
-call vundle#end()
-filetype plugin indent on 
-
 function VimrcVim()
     set nocompatible
-    set shell=/bin/sh
+    set shell=/bin/bash
 endfunction VimrcVim
 call VimrcVim()
+
+filetype plugin indent on 
 
 function VimrcFunc()
     set history=400
@@ -116,44 +109,10 @@ function ColorGeneral()
     hi LineNr       ctermfg=Gray
 endfunction ColorGeneral
 
-function ColorMiromiro()
-    colorscheme miromiro
-
-    hi LineNr       ctermfg=8
-    hi Normal       ctermbg=NONE
-    hi NonText      ctermbg=NONE
-    hi Folded       ctermbg=NONE
-    hi FoldColumn   ctermbg=NONE
-    hi Pmenu        ctermfg=7       ctermbg=0
-    hi PmenuSel     ctermfg=0       ctermbg=7
-
-    hi DiffAdd      term=bold       ctermbg=0
-    hi DiffChange   term=NONE       cterm=NONE      ctermbg=NONE
-    hi DiffDelete   term=bold       ctermfg=NONE    ctermbg=NONE
-    hi DiffText     term=NONE       cterm=reverse   ctermfg=3       ctermbg=NONE 
-
-    hi Comment      cterm=italic    ctermfg=7
-    hi ColorColumn  term=bold       ctermbg=8       guibg=8
-
-    call ColorGeneral()
-endfunction ColorMiromiro
-
 function ColorDesert256()
     colorscheme desert256
-
-    hi Normal       ctermbg=NONE
-    hi NonText      ctermbg=NONE
-
     call ColorGeneral()
 endfunction ColorDesert256
-
-function ColorLucius()
-    let g:lucius_style = 'dark'
-    colorscheme lucius
-
-    " hi Normal       ctermbg=NONE
-    " hi NonText      ctermbg=NONE
-endfunction ColorLucius
 
 function ColorPychimp()
     colorscheme pychimp
@@ -165,12 +124,7 @@ function VimrcColor()
         set t_Co=256
     endif
 
-    let os = substitute(system('uname'), "\n", "", "")
-    if os == "Darwin"
-        call ColorLucius()
-    else
-        call ColorGeneral()
-    endif
+    call ColorDesert256()
 endfunction VimrcColor
 call VimrcColor()
 
