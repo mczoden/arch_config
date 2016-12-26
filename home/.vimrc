@@ -107,6 +107,8 @@ call VimrcEditor()
 function ColorGeneral()
     hi ColorColumn  ctermbg=Gray
     hi LineNr       ctermfg=Gray
+    hi Normal       ctermbg=NONE
+    hi NonText      ctermbg=NONE
 endfunction ColorGeneral
 
 function ColorDesert256()
