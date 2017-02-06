@@ -41,7 +41,7 @@ function Interface:update_state (state)
 end
 
 function Interface:display ()
-  debug(tostring(self))
+  print(tostring(self))
 end
 
 return setmetatable(Interface, Interface.mt)
