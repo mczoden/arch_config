@@ -88,15 +88,15 @@ local function display ()
   end
 
   w:set_markup(sugar.span_str("Bat ", {color = "white"})
-               ..  sugar.span_str(st_info_tbl[bat.st_curr].display(),
-                                  {color = st_info_tbl[bat.st_curr].color()}))
+               .. sugar.span_str(st_info_tbl[bat.st_curr].display(),
+                                 {color = st_info_tbl[bat.st_curr].color()}))
 end
 
 local function notify ()
   if bat.st_curr == "st_discharge"
       and tonumber(bat.cap) < BAT_LOW_THRESHOLD then
     naughty.notify({title = nil,
-                    text = "Battery low! " .. bat.cap .."%" .. " left",
+                    text = "Battery low! " .. bat.cap .. "%" .. " left",
                     fg = "#ffffff",
                     bg = "#C91C1C",
                     timeout = 5})
@@ -120,7 +120,7 @@ function power.new ()
     return true
   end
 
-  t = timer.weak_start_new(UPDATE_TIMEOUT_IN_SECOND, w._private_power_update_cb)
+  t = timer.start_new(UPDATE_TIMEOUT_IN_SECOND, w._private_power_update_cb)
   t:emit_signal('timeout')
 
   mouse_opt()

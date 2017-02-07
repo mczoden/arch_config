@@ -22,7 +22,7 @@ end
 
 local function display ()
   w:set_markup(sugar.span_str("Vol", {color = "white"}) ..
-    sugar.span_str(is_mute and " --" or string.format("%3d", vol)))
+    sugar.span_str(is_mute and " -- " or string.format("%3d", vol)))
 end
 
 function volume.adjust_and_display (op)

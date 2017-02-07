@@ -12,7 +12,7 @@ local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
 -- My library
 local sugar = require('sugar')
-local volume = require("volume")
+local volume = require('volume')
 local power = require('power')
 
 -- {{{ Error handling
@@ -58,6 +58,7 @@ editor_cmd = terminal .. " -e " .. editor
 -- I suggest you to remap Mod4 to another key using xmodmap or other tools.
 -- However, you can use another modifier like Mod1, but it may interact with others.
 modkey = "Mod4"
+altkey = "Mod1"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
@@ -162,7 +163,7 @@ mykeyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
 -- Create a textclock widget
-mytextclock = wibox.widget.textclock()
+mytextclock = wibox.widget.textclock("%a %b %d %H:%M")
 
 -- Create a volume widget
 volume_widget = volume()
@@ -253,10 +254,11 @@ awful.screen.connect_for_each_screen(function(s)
     s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, tasklist_buttons)
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s })
+    s.mywiboxt = awful.wibar({ position = "top", screen = s })
+    s.mywibarb = awful.wibar({ position = "bottom", screen = s })
 
     -- Add widgets to the wibox
-    s.mywibox:setup {
+    s.mywiboxt:setup {
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
@@ -264,7 +266,8 @@ awful.screen.connect_for_each_screen(function(s)
             s.mytaglist,
             s.mypromptbox,
         },
-        s.mytasklist, -- Middle widget
+        -- s.mytasklist, -- Middle widget
+        nil,
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             mykeyboardlayout,
@@ -275,8 +278,14 @@ awful.screen.connect_for_each_screen(function(s)
             power_widget,
             sugar.space,
             mytextclock,
+            sugar.space,
             s.mylayoutbox,
         },
+    }
+
+    s.mywibarb:setup {
+      layout = wibox.layout.align.horizontal,
+      s.mytasklist
     }
 end)
 -- }}}
@@ -297,7 +306,7 @@ globalkeys = awful.util.table.join(
               {description = "view previous", group = "tag"}),
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext,
               {description = "view next", group = "tag"}),
-    awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
+    awful.key({ altkey,           }, "Tab", awful.tag.history.restore,
               {description = "go back", group = "tag"}),
 
     awful.key({ modkey,           }, "j",
