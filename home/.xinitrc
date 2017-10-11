@@ -58,6 +58,11 @@ xinitrc_ibus()
     ibus-daemon -rxd
 }
 
+xinitrc_volumeicon()
+{
+    volumeicon &
+}
+
 xinitrc_wallpaper()
 {
     local wallpaper=''
@@ -72,7 +77,9 @@ xinitrc_wallpaper()
         'wallpaper-702897_nodoka.png' \
         )
 
-    feh --bg-fill "$HOME/pic/kon/${wallpaper_list[`date +%u`]}" &
+    # feh --bg-fill "$HOME/pic/kon/${wallpaper_list[`date +%u`]}" &
+	# feh --bg-fill "$HOME/pic/wallhaven/wallhaven-4145.png"
+	feh --bg-fill "$HOME/pic/wallhaven/wallhaven-8893.jpg"
 }
 
 xinitrc_xcompmgr()
@@ -123,9 +130,11 @@ xinitrc_awesome_exec_hdl()
     xinitrc_xset
     xinitrc_xresources
     xinitrc_xcompmgr
-    xinitrc_wallpaper
+    # xinitrc_wallpaper
     xinitrc_locale
+    # xinitrc_volumeicon
     xinitrc_ibus
+    # nm-applet &
 
     exec awesome > ~/.awesome.log 2>&1
 }

@@ -3,12 +3,13 @@ local string = {
   match = string.match,
   sub = string.sub,
 }
+local timer = require("gears.timer")
 local sugar = require("sugar")
 local textbox = require("wibox.widget.textbox")
 local util = require("awful.util")
 local naughty = require("naughty")
-local capi = {timer = timer}
 
+local UPDATE_TIMEOUT_IN_SECOND = 5
 local BAT_LOW_THRESHOLD = 15
 local bat = {
   cap = "",
@@ -42,7 +43,7 @@ local power = {mt = {}}
 
 local function mouse_enter ()
   bat.info_obj = naughty.notify({title = nil,
-                                 text = string.sub(util.pread("acpi"), 0, -2),
+                                 text = string.sub(sugar.pread("acpi"), 0, -2),
                                  timeout = 0})
 end
 
@@ -58,7 +59,7 @@ end
 local function get_state ()
   bat.st_prev = bat.st_curr
 
-  local raw_input = util.pread("acpi -ab")
+  local raw_input = sugar.pread("acpi -ab")
   local has_battery = string.match(raw_input, "Battery") and true or false
   local has_adapter = string.match(raw_input, "on%-line") and true or false
   local is_charging = string.match(raw_input, "Charging") and true or false
@@ -87,15 +88,15 @@ local function display ()
   end
 
   w:set_markup(sugar.span_str("Bat ", {color = "white"})
-               ..  sugar.span_str(st_info_tbl[bat.st_curr].display(),
-                                  {color = st_info_tbl[bat.st_curr].color()}))
+               .. sugar.span_str(st_info_tbl[bat.st_curr].display(),
+                                 {color = st_info_tbl[bat.st_curr].color()}))
 end
 
 local function notify ()
   if bat.st_curr == "st_discharge"
       and tonumber(bat.cap) < BAT_LOW_THRESHOLD then
     naughty.notify({title = nil,
-                    text = "Battery low! " .. bat.cap .."%" .. " left",
+                    text = "Battery low! " .. bat.cap .. "%" .. " left",
                     fg = "#ffffff",
                     bg = "#C91C1C",
                     timeout = 5})
@@ -109,10 +110,18 @@ local function update ()
 end
 
 function power.new ()
-  local timer = capi.timer({timeout = 5})
-  timer:connect_signal("timeout", update)
-  timer:start()
-  timer:emit_signal("timeout")
+  local t
+
+  function w._private_power_update_cb ()
+    update()
+    t.timeout = UPDATE_TIMEOUT_IN_SECOND
+    t:again()
+
+    return true
+  end
+
+  t = timer.start_new(UPDATE_TIMEOUT_IN_SECOND, w._private_power_update_cb)
+  t:emit_signal('timeout')
 
   mouse_opt()
 
