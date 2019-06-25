@@ -14,6 +14,7 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 local sugar = require('sugar')
 local volume = require('volume')
 local power = require('power')
+local batnew = require('batnew')
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -44,7 +45,7 @@ end
 -- Themes define colours, icons, font and wallpapers.
 local theme = dofile(awful.util.get_configuration_dir() ..
   'themes/anrxc/theme.lua')
-theme.font = 'Dina 10'
+theme.font = 'NotoSansMono 10'
 beautiful.init(theme)
 
 -- This is used later as the default terminal and editor to run.
@@ -84,39 +85,49 @@ awful.layout.layouts = {
 local my_tag_properties = {
   urxvt = {
     index = 1,
-    name = 'urxvt',
+    name = '1>urxvt',
     layout = awful.layout.suit.tile.top
   },
   etc = {
     index = 2,
-    name = 'etc',
+    name = '2>etc',
     layout = awful.layout.suit.tile.top
   },
   browser = {
     index = 3,
-    name = 'browser',
+    name = '3>browser',
     layout = awful.layout.suit.floating
   },
   pdf = {
     index = 4,
-    name = 'pdf',
+    name = '4>pdf',
     layout = awful.layout.suit.tile.top
   },
   office = {
     index = 5,
-    name = 'office',
+    name = '5>office',
     layout = awful.layout.suit.floating
   },
   wireshark = {
     index = 6,
-    name = 'wireshark',
+    name = '6>wireshark',
+    layout = awful.layout.suit.floating
+  },
+  editor = {
+    index = 7,
+    name = '7>editor',
+    layout = awful.layout.suit.floating
+  },
+  rdesktop = {
+    index = 8,
+    name = '8>rdesktop',
     layout = awful.layout.suit.floating
   }
 }
 local my_tag_list = {}
 local my_tag_layouts = {}
 for k, v in pairs(my_tag_properties) do
-  my_tag_list[v.index] = k
+  my_tag_list[v.index] = v.name
   my_tag_layouts[v.index] = v.layout
 end
 -- }}}
@@ -170,6 +181,8 @@ volume_widget = volume()
 
 -- Create a textpower widget
 power_widget = power()
+
+batnew_widget = batnew()
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = awful.util.table.join(
@@ -262,7 +275,7 @@ awful.screen.connect_for_each_screen(function(s)
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            mylauncher,
+            -- mylauncher,
             s.mytaglist,
             s.mypromptbox,
         },
@@ -270,8 +283,9 @@ awful.screen.connect_for_each_screen(function(s)
         nil,
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
+            -- mykeyboardlayout,
             wibox.widget.systray(),
+            sugar.space,
             sugar.space,
             volume_widget,
             sugar.space,
@@ -279,12 +293,14 @@ awful.screen.connect_for_each_screen(function(s)
             sugar.space,
             mytextclock,
             sugar.space,
+            -- batnew_widget,
             s.mylayoutbox,
         },
     }
 
     s.mywibarb:setup {
       layout = wibox.layout.align.horizontal,
+      mylauncher,
       s.mytasklist
     }
 end)
@@ -345,7 +361,7 @@ globalkeys = awful.util.table.join(
         {description = "go back", group = "client"}),
 
     -- Standard program
-    awful.key({ modkey,           }, "Return", function () awful.spawn(terminal) end,
+    awful.key({ modkey,           }, "Return", function () awful.spawn(terminal .. ' -e fish') end,
               {description = "open a terminal", group = "launcher"}),
     awful.key({ modkey, "Control" }, "r", awesome.restart,
               {description = "reload awesome", group = "awesome"}),
@@ -364,10 +380,13 @@ globalkeys = awful.util.table.join(
               {description = "increase the number of columns", group = "layout"}),
     awful.key({ modkey, "Control" }, "l",     function () awful.tag.incncol(-1, nil, true)    end,
               {description = "decrease the number of columns", group = "layout"}),
+    --[[
     awful.key({ modkey,           }, "space", function () awful.layout.inc( 1)                end,
               {description = "select next", group = "layout"}),
+    --]]
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(-1)                end,
               {description = "select previous", group = "layout"}),
+
 
     awful.key({ modkey, "Control" }, "n",
               function ()
@@ -381,7 +400,7 @@ globalkeys = awful.util.table.join(
               {description = "restore minimized", group = "client"}),
 
     -- Prompt
-    awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
+    awful.key({ modkey },            "p",     function () awful.screen.focused().mypromptbox:run() end,
               {description = "run prompt", group = "launcher"}),
 
     awful.key({ modkey }, "x",
@@ -395,7 +414,7 @@ globalkeys = awful.util.table.join(
               end,
               {description = "lua execute prompt", group = "awesome"}),
     -- Menubar
-    awful.key({ modkey }, "p", function() menubar.show() end,
+    awful.key({ modkey }, "r", function() menubar.show() end,
               {description = "show the menubar", group = "launcher"}),
 
     -- Volume
@@ -566,6 +585,13 @@ awful.rules.rules = {
       }
     },
     {
+      rule = {class = "Google-chrome"},
+      properties = {
+        tag = my_tag_properties.browser.name,
+        switchtotag = false
+      }
+    },
+    {
       rule = {class = "Zathura"},
       properties = {
         tag = my_tag_properties.pdf.name,
@@ -586,12 +612,48 @@ awful.rules.rules = {
       }
     },
     {
+      rule = {class = "libreoffice-startcenter"},
+      properties = {
+        tag = my_tag_properties.office.name,
+        switchtotag = false,
+        maximized_vertical = true,
+        maximized_horizontal = true
+      }
+    },
+    {
       rule = {class = "Wireshark-gtk"},
       properties = {
         tag = my_tag_properties.wireshark.name,
         switchtotag = false
       }
     },
+    {
+      rule = {class = "Code"},
+      properties = {
+        tag = my_tag_properties.editor.name,
+        switchtotag = false,
+        maximized_vertical = true,
+        maximized_horizontal = true
+      }
+    },
+    {
+      rule = {class = "rdesktop"},
+      properties = {
+        tag = my_tag_properties.rdesktop.name,
+        switchtotag = false,
+        maximized_vertical = true,
+        maximized_horizontal = true
+      }
+    },
+    {
+      rule = {class = "xfreerdp"},
+      properties = {
+        tag = my_tag_properties.rdesktop.name,
+        switchtotag = false,
+        maximized_vertical = true,
+        maximized_horizontal = true
+      }
+    }
 }
 -- }}}
 
